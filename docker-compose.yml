@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres:16-alpine
-    container_name: reading_list_db
+    container_name: receptor_db
     restart: unless-stopped
     env_file:
       - .env
@@ -21,7 +21,7 @@ services:
 
   api:
     build: .
-    container_name: reading_list_api
+    container_name: receptor_api
     restart: unless-stopped
     depends_on:
       db:
@@ -32,7 +32,7 @@ services:
       DATABASE_URL: ${DATABASE_URL}
       APP_ENV: ${APP_ENV}
       DEBUG: ${DEBUG}
-    command: uvicorn reading_list.main:app --host 0.0.0.0 --port 8000
+    command: uvicorn receptor.main:app --host 0.0.0.0 --port 8000
     ports:
       - "8000:8000"
 
