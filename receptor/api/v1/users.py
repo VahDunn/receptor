@@ -2,7 +2,7 @@ from fastapi import APIRouter, status
 from fastapi.params import Depends
 
 from receptor.api.deps import crud_service_dep
-from receptor.api.schemas.user import UserCreate, UserOut, UserUpdate
+from receptor.api.schemas.user import UserCreate, UserOut
 from receptor.repositories.user import UserRepository
 from receptor.services.user import UserService
 

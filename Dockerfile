@@ -10,8 +10,8 @@ RUN apt-get update && apt-get install -y \
 COPY pyproject.toml .
 COPY receptor ./receptor
 
-#COPY alembic.ini .
-#COPY alembic ./alembic
+COPY alembic.ini .
+COPY alembic ./alembic
 
 RUN pip install --upgrade pip \
     && pip install .

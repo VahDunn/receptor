@@ -1,12 +1,19 @@
-from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import Mapped, relationship, mapped_column
 import sqlalchemy as sa
+
+from receptor.db.models.product_type import ProductType
 from receptor.db.models.base import BaseORM
 
 
 class Product(BaseORM):
     __tablename__ = "product"
-    name: Mapped[str] = sa.Column(sa.String)
-    type: Mapped[int] # тут будет связь на справочник типов
-    measure_unit: Mapped[str] # тут тоже, на справочник единиц измерения
-    calories_per_unit: Mapped[int]
+    name: Mapped[str] = mapped_column(sa.String)
+    type_id: Mapped[int] = mapped_column(
+        sa.ForeignKey("product_type.id"),
+        nullable=False,
+        index=True,
+    )
+    type: Mapped[ProductType] = relationship("ProductType")
+    unit: Mapped[str] = mapped_column(sa.String)
+    calories_per_unit: Mapped[int] = mapped_column(sa.SmallInteger)
     price_rub: Mapped[int]
