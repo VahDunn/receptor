@@ -1,9 +1,13 @@
 from sqlalchemy.orm import Mapped, mapped_column
 import sqlalchemy as sa
 
-from receptor.db.models.base import BaseORM
+from receptor.db.models.base import Base
 
 
-class ProductType(BaseORM):
-    __tablename__ = 'product_type'
-    name: Mapped[str] = mapped_column(sa.String, nullable=False)
+class ProductType(Base):
+    __tablename__ = "product_type"
+
+    code: Mapped[str] = mapped_column(
+        sa.String(32), nullable=False, unique=True, primary_key=True
+    )
+    name_ru: Mapped[str] = mapped_column(sa.String(128), nullable=False)

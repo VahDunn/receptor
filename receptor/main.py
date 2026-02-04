@@ -4,7 +4,7 @@ import aiohttp
 from fastapi import FastAPI
 
 from receptor.api.router import api_router
-from receptor.core.admin import setup_admin
+from receptor.db.admin import setup_admin
 from receptor.db.engine import engine
 from receptor.api.error_handlers import register_exception_handlers
 

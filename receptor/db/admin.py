@@ -7,12 +7,12 @@ from receptor.db.models import Product, ProductType
 
 class ProductTypeAdmin(ModelView, model=ProductType):
     column_list = [
-        ProductType.id,
-        ProductType.name,
-        ProductType.created_at
+        ProductType.name_ru,
+        ProductType.code,
     ]
     column_searchable_list = [
-        ProductType.name,
+        ProductType.name_ru,
+        ProductType.code,
     ]
     name = "ProductType"
     name_plural = "ProductTypes"
@@ -23,7 +23,7 @@ class ProductAdmin(ModelView, model=Product):
     column_list = [
         Product.id,
         Product.name,
-        Product.type_id,
+        Product.type_code,
         Product.type,
         Product.unit,
         Product.calories_per_unit,

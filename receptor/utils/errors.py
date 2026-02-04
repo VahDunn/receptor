@@ -12,3 +12,6 @@ class ValidationError(ServiceError):
 
 class ConflictError(ServiceError):
     """Конфликт данных."""
+
+class AiResponseParseError(ValueError):
+    """LLM вернул невалидный/неожиданный формат."""

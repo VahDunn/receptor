@@ -1,9 +1,7 @@
 import aiohttp
 
-from receptor.external_services.ai.abstract_ai_client import AbstractAIClient
 
-
-class ChadAIClient(AbstractAIClient):
+class ChadAIClient:
     def __init__(
         self,
         session: aiohttp.ClientSession,
@@ -29,8 +27,5 @@ class ChadAIClient(AbstractAIClient):
                     raise RuntimeError(f"HTTP {resp.status}: {text}")
 
                 data = await resp.json(content_type=None)
-
-        if not data.get("is_success"):
-            raise RuntimeError(f"API error: {data.get('error_message')}")
 
         return data

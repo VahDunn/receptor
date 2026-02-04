@@ -1,12 +1,11 @@
 from functools import lru_cache
-from typing import AsyncGenerator, TypeVar, Callable, Type, Awaitable
+from typing import AsyncGenerator, TypeVar
 
 from fastapi import Depends, Header, HTTPException, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from receptor.config import get_settings
 from receptor.db.engine import AsyncSessionLocal
-from receptor.external_services.ai.abstract_ai_client import AbstractAIClient
 from receptor.external_services.ai.chad_ai_client import ChadAIClient
 from receptor.repositories.base_crud import BaseCrudRepository
 from receptor.services.abstract_crud import AbstractCrudService
@@ -22,7 +21,7 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 
 
 @lru_cache(maxsize=1)
-async def get_ai_client(request: Request) -> AbstractAIClient:
+async def get_ai_client(request: Request):
     session = request.app.state.http_session
     settings = get_settings()
     api_key = settings.chad_api_key
@@ -48,17 +47,3 @@ async def get_current_user_id(
 
 
 depends_user_id = Depends(get_current_user_id)
-
-
-def crud_service_dep(
-    service_cls: Type[TService],
-    repo_cls: Type[TRepo],
-) -> Callable[..., Awaitable[TService]]:
-    async def _dep(
-        db: AsyncSession = depends_db,
-        user_id: int = depends_user_id,
-    ) -> TService:
-        repo = repo_cls(db)
-        return service_cls(repo=repo, user_id=user_id)
-
-    return _dep
