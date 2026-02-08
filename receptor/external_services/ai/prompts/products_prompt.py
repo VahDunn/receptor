@@ -1,6 +1,6 @@
 import json
 
-from receptor.core.domain.product_categories import ProductCategory
+from receptor.core.domain.product_categories import ProductTypeCode
 from receptor.db.models import Product
 
 
@@ -20,8 +20,8 @@ RESPONSE_FORMAT = {
         "store": "Перекрёсток",
         "city": "Москва",
         "catalog_size": 150,
-        "created_at": "",
-        "version": "",
+        "created_at": None,
+        "version": None,
     },
     "items": [{field: None for field in RESPONSE_FIELDS}],
 }
@@ -29,6 +29,8 @@ RESPONSE_FORMAT = {
 POSITIONS_NUMBER = 150
 
 CALORIES_AMOUNT = 2500
+
+UNITS = ["g", "kg", "ml", "l", "pcs"]
 
 PROMPT = f"""
 Жёсткие правила:
@@ -45,24 +47,24 @@ PROMPT = f"""
 
 Сформируй каталог продуктов для кэширования цен для магазина "Перекрёсток", город Москва.
 
+Категории (строго из списка): {json.dumps([c.code for c in ProductTypeCode], ensure_ascii=False)}
+Поле unit (строго из списка): {json.dumps(UNITS, ensure_ascii=False)}
+
+Правила для calories_per_unit (целое число):
+- если unit == "g": calories_per_unit = ккал на 100 g
+- если unit == "kg": calories_per_unit = ккал на 1 kg
+- если unit == "ml": calories_per_unit = ккал на 100 ml
+- если unit == "l": calories_per_unit = ккал на 1 l
+- если unit == "pcs": calories_per_unit = ккал на 1 штуку
+
 Требования:
 - Количество позиций: {POSITIONS_NUMBER}
-- Каталог должен покрывать типичное недельное меню (3 приёма пищи в день) на {
-    CALORIES_AMOUNT
-} ккал/день
+- Каталог должен покрывать типичное недельное меню (3 приёма пищи в день) на {CALORIES_AMOUNT} ккал/день
 - Сделай упор на белок, крупы, овощи, фрукты, молочку, масла
 - Используй универсальные позиции без привязки к брендам
 
-Для каждой позиции укажи: {json.dumps(RESPONSE_FIELDS, ensure_ascii=False)}
+Поля каждой позиции (строго): {json.dumps(RESPONSE_FIELDS, ensure_ascii=False)}
 
-Категории (строго из списка): {
-    json.dumps(
-        [category.code for category in ProductCategory],
-        ensure_ascii=False,
-    )
-}
-
-Формат ответа (строго по схеме): {
-    json.dumps(RESPONSE_FORMAT, ensure_ascii=False, indent=2)
-}
+Формат ответа (строго по схеме — подставить значения вместо null):
+{json.dumps(RESPONSE_FORMAT, ensure_ascii=False, indent=2)}
 """

@@ -8,7 +8,7 @@ from receptor.db.models.base import BaseORM
 class Product(BaseORM):
     __tablename__ = "product"
     name: Mapped[str] = mapped_column(sa.String)
-    type_code: Mapped[int] = mapped_column(
+    type_code: Mapped[str] = mapped_column(
         sa.ForeignKey("product_type.code", ondelete="CASCADE"),
         nullable=False,
         index=True,

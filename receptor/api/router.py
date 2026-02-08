@@ -1,8 +1,12 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
-from receptor.api.deps import depends_ai
+from receptor.dependencies.deps import get_ai_client
+from receptor.api.v1.products import router as products_router
+
+depends_ai = Depends(get_ai_client)
 
 api_router = APIRouter()
+api_router.include_router(products_router, prefix="/products", tags=["products"])
 
 
 @api_router.get("/health")

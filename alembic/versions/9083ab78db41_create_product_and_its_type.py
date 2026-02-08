@@ -12,7 +12,7 @@ from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 
-from receptor.core.domain.product_categories import ProductCategory
+from receptor.core.domain.product_categories import ProductTypeCode
 
 # revision identifiers, used by Alembic.
 revision: str = "9083ab78db41"
@@ -66,7 +66,7 @@ def upgrade() -> None:
         sa.column("name_ru", sa.String),
     )
 
-    rows = [{"code": c.code, "name_ru": c.name_ru} for c in ProductCategory]
+    rows = [{"code": c.code, "name_ru": c.name_ru} for c in ProductTypeCode]
 
     stmt = (
         pg_insert(product_type_tbl)

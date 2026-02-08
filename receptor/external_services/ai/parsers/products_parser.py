@@ -2,17 +2,18 @@ import json
 from dataclasses import dataclass
 from typing import Any
 
+from receptor.external_services.ai.parsers.abstract_parser import AbstractAiParser
 from receptor.external_services.ai.response_schemas.products_schema import (
-    ProductsResponseDTO,
+    ProductsResponseSchema,
 )
 from receptor.utils.errors import ValidationError, AiResponseParseError
 
 
 @dataclass(frozen=True)
-class ProductsAiResponseParser:
+class ProductsAiResponseParser(AbstractAiParser):
     strict_json_only: bool = True
 
-    def parse(self, raw: str) -> ProductsResponseDTO:
+    def parse(self, raw: str) -> ProductsResponseSchema:
         raw = raw.strip()
 
         if self.strict_json_only:
@@ -21,7 +22,7 @@ class ProductsAiResponseParser:
             data = self._loads_json(self._extract_json_object(raw))
 
         try:
-            return ProductsResponseDTO.model_validate(data)
+            return ProductsResponseSchema.model_validate(data)
         except ValidationError as e:
             raise AiResponseParseError(f"Invalid products schema: {e}") from e
 
@@ -34,10 +35,6 @@ class ProductsAiResponseParser:
 
     @staticmethod
     def _extract_json_object(text: str) -> str:
-        """
-        Фоллбек: вырезаем первый JSON-объект по балансировке скобок.
-        Полезно, если модель иногда добавляет текст вокруг JSON.
-        """
         start = text.find("{")
         if start == -1:
             raise AiResponseParseError("No '{' found in response")
