@@ -1,4 +1,4 @@
-"""create product and its type
+"""create_products_pool product and its type
 
 Revision ID: 9083ab78db41
 Revises:

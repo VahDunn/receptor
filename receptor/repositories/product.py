@@ -5,7 +5,7 @@ import sqlalchemy as sa
 from receptor.db.models import Product
 
 
-class ProductsRepository:
+class ProductRepository:
     def __init__(self, db: AsyncSession):
         self.db = db
 
