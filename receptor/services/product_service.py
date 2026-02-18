@@ -4,7 +4,7 @@ from receptor.db.models import Product
 from receptor.external_services.ai.prompts.products_prompt import (
     PRODUCTS_PROMPT,
 )
-from receptor.external_services.ai.response_schemas.products_schema import (
+from receptor.external_services.ai.response_schemas.ai_products_schema import (
     ProductsResponseSchema,
     ProductItemSchema,
 )

@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from receptor.external_services.ai.parsers.abstract_parser import AbstractAiParser
-from receptor.external_services.ai.response_schemas.products_schema import (
+from receptor.external_services.ai.response_schemas.ai_products_schema import (
     ProductsResponseSchema,
 )
 from receptor.utils.errors import ValidationError, AiResponseParseError

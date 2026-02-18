@@ -1,11 +1,52 @@
-from receptor.db.models import BaseORM
-from sqlalchemy.orm import Mapped, mapped_column
+from typing import TYPE_CHECKING
+
 import sqlalchemy as sa
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from receptor.db.models.base import BaseORM
+
+if TYPE_CHECKING:
+    from receptor.db.models import Product
 
 
 class Menu(BaseORM):
     __tablename__ = "menu"
 
-    user_id: Mapped[int] = mapped_column(sa.BigInteger)
-    text: Mapped[str] = mapped_column(sa.String)
-    calories_per_day: Mapped[int] = mapped_column(sa.SmallInteger)
+    meta: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    calorie_target: Mapped[dict] = mapped_column(JSONB, nullable=False)
+
+    menu_days: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    daily_kcal_estimates: Mapped[list[int]] = mapped_column(
+        sa.ARRAY(sa.Integer), nullable=False
+    )
+
+    items: Mapped[list["MenuProduct"]] = relationship(
+        "MenuProduct",
+        back_populates="menu",
+        cascade="all, delete-orphan",
+    )
+
+
+class MenuProduct(BaseORM):
+    __tablename__ = "menu_product"
+
+    menu_id: Mapped[int] = mapped_column(
+        sa.ForeignKey("menu.id", ondelete="CASCADE"),
+        index=True,
+        nullable=False,
+    )
+    product_id: Mapped[int] = mapped_column(
+        sa.ForeignKey("product.id", ondelete="RESTRICT"),
+        index=True,
+        nullable=False,
+    )
+
+    quantity: Mapped[sa.Numeric] = mapped_column(sa.Numeric(10, 3), nullable=False)
+
+    menu: Mapped["Menu"] = relationship("Menu", back_populates="items")
+    product: Mapped["Product"] = relationship("Product")
+
+    __table_args__ = (
+        sa.UniqueConstraint("menu_id", "product_id", name="uq_menu_product"),
+    )
