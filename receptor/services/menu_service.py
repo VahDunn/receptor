@@ -1,8 +1,8 @@
 import json
 
 from receptor.external_services.ai.prompts.menu_prompt import build_menu_text_prompt
-from receptor.services.ai import AIService
-from receptor.services.product import ProductsService
+from receptor.services.ai_service import AIService
+from receptor.services.product_service import ProductsService
 
 
 class MenuService:

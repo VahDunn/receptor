@@ -1,7 +1,7 @@
 from fastapi import APIRouter, status
 
 from receptor.dependencies.deps import depends_menus_service
-from receptor.services.menu import MenuService
+from receptor.services.menu_service import MenuService
 
 router = APIRouter(tags=["menus"])
 

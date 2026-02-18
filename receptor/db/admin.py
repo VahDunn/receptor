@@ -28,6 +28,7 @@ class ProductAdmin(ModelView, model=Product):
         Product.unit,
         Product.calories_per_unit,
         Product.created_at,
+        Product.price_rub,
     ]
     column_searchable_list = [
         Product.name,

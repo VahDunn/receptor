@@ -11,10 +11,10 @@ from receptor.external_services.ai.parsers.menu_parser import MenuAiResponsePars
 from receptor.external_services.ai.parsers.products_parser import (
     ProductsAiResponseParser,
 )
-from receptor.repositories.product import ProductRepository
-from receptor.services.ai import AIService
-from receptor.services.menu import MenuService
-from receptor.services.product import ProductsService
+from receptor.repositories.product_repo import ProductRepository
+from receptor.services.ai_service import AIService
+from receptor.services.menu_service import MenuService
+from receptor.services.product_service import ProductsService
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:

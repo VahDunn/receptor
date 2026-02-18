@@ -1,2 +1,0 @@
-class MenuRepository:
-    pass
