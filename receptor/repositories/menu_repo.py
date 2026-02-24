@@ -6,6 +6,4 @@ class MenuRepository:
         self.db = db
 
     async def create(self, menu_text: str):
-        self.db.add(menu_text)
-        await self.db.flush()
         return menu_text

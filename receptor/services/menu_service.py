@@ -1,8 +1,14 @@
 import json
+from typing import TYPE_CHECKING, Sequence
+
+from receptor.api.schemas.menu import MenuCreateParams
 
 from receptor.external_services.ai.prompts.menu_prompt import build_menu_prompt
 from receptor.services.ai_service import AIService
 from receptor.services.product_service import ProductsService
+
+if TYPE_CHECKING:
+    from receptor.db.models import Product
 
 
 class MenuService:
@@ -16,7 +22,9 @@ class MenuService:
         self._prompt_builder = build_menu_prompt
 
     async def create_menu(self, payload: MenuCreateParams):
-        products = await self._products_service.get()
+        products: Sequence["Product"] = await self._products_service.get(
+            exclude_ids=payload.excluded_products_ids,  # TODO передавать только id пользователя, его настройки и исклченные продукты получать из сервиса пользователей (вероятно через get current user)
+        )
         products_payload = [
             {
                 "id": p.id,
@@ -31,7 +39,7 @@ class MenuService:
 
         products_json = json.dumps(products_payload, ensure_ascii=False)
         prompt = self._prompt_builder(
-            products_json, min_kcal=min_kcal, max_kcal=max_kcal
+            products_json, min_kcal=payload.min_kcal, max_kcal=payload.max_kcal
         )
         res = await self.ai_service.get(prompt)
         print(res)

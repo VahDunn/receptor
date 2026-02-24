@@ -15,8 +15,16 @@ class ProductRepository:
         await self.db.flush()
         return products
 
-    async def get(self) -> Sequence[Product]:
-        result = await self.db.execute(sa.select(Product))
+    async def get(
+        self,
+        exclude_ids: Sequence[int] | None = None,
+    ) -> Sequence[Product]:
+        stmt = sa.select(Product)
+
+        if exclude_ids:
+            stmt = stmt.where(Product.id.notin_(exclude_ids))
+
+        result = await self.db.execute(stmt)
         return result.scalars().all()
 
     async def get_by_id(self, product_id: int) -> Product | None:

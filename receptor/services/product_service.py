@@ -41,5 +41,8 @@ class ProductsService:
         await self._repo.db.commit()
         return created
 
-    async def get(self) -> Sequence[Product]:
-        return await self._repo.get()
+    async def get(
+        self,
+        exclude_ids: Sequence[int] | None = None,
+    ) -> Sequence[Product]:
+        return await self._repo.get(exclude_ids=exclude_ids)
