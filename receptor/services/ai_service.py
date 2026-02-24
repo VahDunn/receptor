@@ -1,17 +1,21 @@
-from receptor.external_services.ai.clients.abstract_ai_client import AbstractAiClient
+from typing import TYPE_CHECKING, TypeVar
+
 from receptor.external_services.ai.parsers.abstract_parser import AbstractAiParser
-from receptor.utils.types import T
+
+
+if TYPE_CHECKING:
+    from receptor.external_services.ai.clients.abstract_ai_client import (
+        AbstractAiClient,
+    )
+
+
+R = TypeVar("R")
 
 
 class AIService:
-    def __init__(
-        self,
-        ai_client: AbstractAiClient,
-        parser: AbstractAiParser,
-    ):
+    def __init__(self, ai_client: "AbstractAiClient"):
         self.ai_client = ai_client
-        self.parser = parser
 
-    async def get(self, prompt: str) -> T:
-        ai_response = await self.ai_client.send_prompt(prompt)
-        return self.parser.parse(ai_response)
+    async def get(self, prompt: str, parser: AbstractAiParser[R]) -> R:
+        raw = await self.ai_client.send_prompt(prompt)
+        return parser.parse(raw)

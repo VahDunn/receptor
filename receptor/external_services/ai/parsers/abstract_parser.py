@@ -1,12 +1,11 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Generic
+from typing import Generic, TypeVar
 
-
-from receptor.utils.types import T
+R = TypeVar("R")
 
 
 @dataclass(frozen=True)
-class AbstractAiParser(ABC, Generic[T]):
+class AbstractAiParser(ABC, Generic[R]):
     @abstractmethod
-    def parse(self, raw: str) -> T: ...
+    def parse(self, raw: str) -> R: ...

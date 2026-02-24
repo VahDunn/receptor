@@ -1,5 +1,5 @@
-import json
 from dataclasses import dataclass
+import json
 from typing import Any
 
 from receptor.external_services.ai.parsers.abstract_parser import AbstractAiParser
@@ -10,17 +10,16 @@ from receptor.utils.errors import ValidationError, AiResponseParseError
 
 
 @dataclass(frozen=True)
-class ProductsAiResponseParser(AbstractAiParser):
+class ProductsAiParser(AbstractAiParser[ProductsResponseSchema]):
     strict_json_only: bool = True
 
     def parse(self, raw: str) -> ProductsResponseSchema:
         raw = raw.strip()
-
-        if self.strict_json_only:
-            data = self._loads_json(raw)
-        else:
-            data = self._loads_json(self._extract_json_object(raw))
-
+        data = (
+            self._loads_json(raw)
+            if self.strict_json_only
+            else self._loads_json(self._extract_json_object(raw))
+        )
         try:
             return ProductsResponseSchema.model_validate(data)
         except ValidationError as e:

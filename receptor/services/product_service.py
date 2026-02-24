@@ -1,9 +1,8 @@
 from typing import Sequence
 
 from receptor.db.models import Product
-from receptor.external_services.ai.prompts.products_prompt import (
-    PRODUCTS_PROMPT,
-)
+from receptor.external_services.ai.parsers.products_parser import ProductsAiParser
+from receptor.external_services.ai.prompts.products_prompt import PRODUCTS_PROMPT
 from receptor.external_services.ai.response_schemas.ai_products_schema import (
     ProductsResponseSchema,
     ProductItemSchema,
@@ -17,15 +16,21 @@ class ProductsService:
         self,
         repo: ProductRepository,
         ai_service: AIService,
+        parser: ProductsAiParser,
     ):
         self.prompt = PRODUCTS_PROMPT
-        self.ai_service = ai_service
         self._repo = repo
         self.ai_service = ai_service
+        self._parser = parser
 
     async def create_products_pool(self) -> Sequence[Product]:
-        ai_response: ProductsResponseSchema = await self.ai_service.get(self.prompt)
+        ai_response: ProductsResponseSchema = await self.ai_service.get(
+            self.prompt,
+            parser=self._parser,
+        )
+
         products: Sequence[ProductItemSchema] = ai_response.items
+
         created: list[Product] = await self._repo.create_many(
             [
                 Product(
