@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+from decimal import Decimal
 from typing import TYPE_CHECKING
 
 import sqlalchemy as sa
@@ -16,12 +19,14 @@ class Menu(BaseORM):
     meta: Mapped[dict] = mapped_column(JSONB, nullable=False)
     calorie_target: Mapped[dict] = mapped_column(JSONB, nullable=False)
 
-    menu_days: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    menu_structure: Mapped[list[dict]] = mapped_column(JSONB, nullable=False)
+
     daily_kcal_estimates: Mapped[list[int]] = mapped_column(
-        sa.ARRAY(sa.Integer), nullable=False
+        sa.ARRAY(sa.Integer),
+        nullable=False,
     )
 
-    items: Mapped[list["MenuProduct"]] = relationship(
+    products_with_quantities: Mapped[list["MenuProduct"]] = relationship(
         "MenuProduct",
         back_populates="menu",
         cascade="all, delete-orphan",
@@ -36,17 +41,23 @@ class MenuProduct(BaseORM):
         index=True,
         nullable=False,
     )
+
     product_id: Mapped[int] = mapped_column(
         sa.ForeignKey("product.id", ondelete="RESTRICT"),
         index=True,
         nullable=False,
     )
 
-    quantity: Mapped[sa.Numeric] = mapped_column(sa.Numeric(10, 3), nullable=False)
+    unit: Mapped[str] = mapped_column(sa.String(8), nullable=False)
 
-    menu: Mapped["Menu"] = relationship("Menu", back_populates="items")
+    quantity: Mapped[Decimal] = mapped_column(sa.Numeric(10, 3), nullable=False)
+
+    menu: Mapped["Menu"] = relationship(
+        "Menu", back_populates="products_with_quantities"
+    )
     product: Mapped["Product"] = relationship("Product")
 
     __table_args__ = (
         sa.UniqueConstraint("menu_id", "product_id", name="uq_menu_product"),
+        sa.CheckConstraint("quantity > 0", name="ck_menu_product_quantity_gt_0"),
     )

@@ -1,7 +1,7 @@
-from typing import Sequence
+from typing import Sequence, TYPE_CHECKING
 
 from receptor.db.models import Product
-from receptor.external_services.ai.parsers.products_parser import ProductsAiParser
+
 from receptor.external_services.ai.prompts.products_prompt import PRODUCTS_PROMPT
 from receptor.external_services.ai.response_schemas.ai_products_schema import (
     ProductsResponseSchema,
@@ -10,13 +10,16 @@ from receptor.external_services.ai.response_schemas.ai_products_schema import (
 from receptor.repositories.product_repo import ProductRepository
 from receptor.services.ai_service import AIService
 
+if TYPE_CHECKING:
+    from receptor.external_services.ai.parsers.default_parser import DefaultJsonAiParser
+
 
 class ProductsService:
     def __init__(
         self,
         repo: ProductRepository,
         ai_service: AIService,
-        parser: ProductsAiParser,
+        parser: "DefaultJsonAiParser",
     ):
         self.prompt = PRODUCTS_PROMPT
         self._repo = repo

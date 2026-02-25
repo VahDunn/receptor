@@ -1,6 +1,7 @@
 import json
 
 from receptor.core.domain.product_categories import ProductTypeCode
+from receptor.core.domain.units import UNITS
 from receptor.db.models import Product
 
 
@@ -27,10 +28,7 @@ RESPONSE_FORMAT = {
 }
 
 POSITIONS_NUMBER = 150
-
 CALORIES_AMOUNT = 2500
-
-UNITS = ["g", "kg", "ml", "l", "pcs"]
 
 PRODUCTS_PROMPT = f"""
 Жёсткие правила:

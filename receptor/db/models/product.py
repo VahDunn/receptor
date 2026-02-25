@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 import sqlalchemy as sa
 
+from receptor.core.domain.units import Unit
 from receptor.db.models.product_type import ProductType
 from receptor.db.models.base import BaseORM
 
@@ -14,6 +15,13 @@ class Product(BaseORM):
         index=True,
     )
     type: Mapped[ProductType] = relationship("ProductType")
-    unit: Mapped[str] = mapped_column(sa.String)
+    unit: Mapped[str] = mapped_column(sa.String, nullable=False)
     calories_per_unit: Mapped[int] = mapped_column(sa.SmallInteger)
     price_rub: Mapped[int]
+
+    __table_args__ = (
+        sa.CheckConstraint(
+            f"unit IN ({', '.join(repr(u.value) for u in Unit)})",
+            name="ck_product_unit_valid",
+        ),
+    )
