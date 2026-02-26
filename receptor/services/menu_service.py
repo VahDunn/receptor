@@ -2,7 +2,10 @@ import json
 from dataclasses import replace
 from typing import TYPE_CHECKING, Sequence
 
-from receptor.api.schemas.menu import MenuCreateParams
+from receptor.api.schemas.menu import (
+    MenuCreateParams,
+    MenuResponseSchema,
+)
 from receptor.core.domain.units import Unit
 from receptor.db.models import Menu, MenuProduct
 from receptor.external_services.ai.parsers.default_parser import DefaultJsonAiParser
@@ -32,18 +35,11 @@ class MenuService:
         self._prompt_builder = build_menu_prompt
         self._repo = repo
 
-    async def create_menu(self, payload: MenuCreateParams) -> Menu:
+    async def create(self, payload: MenuCreateParams) -> MenuResponseSchema:
         products: Sequence["Product"] = await self._products_service.get(
             exclude_ids=payload.excluded_products_ids,
         )
-
-        excluded_ids = [
-            1,
-            5,
-            22,
-        ]  # TODO передавать только id пользователя, его настройки и исключенные продукты получать из сервиса пользователей (вероятно через get current user)
-
-        allowed_ids = tuple(p.id for p in products if p.id not in excluded_ids)
+        allowed_ids = tuple(p.id for p in products)
         unit_by_id = {p.id: Unit(p.unit) for p in products}
 
         parser = replace(
@@ -113,4 +109,8 @@ class MenuService:
 
         created = await self._repo.create(menu)
         await self._repo.db.commit()
-        return created
+        return MenuResponseSchema.model_validate(created, from_attributes=True)
+
+    async def get(self, user_id):
+        menu = await self._repo.get(user_id)
+        return MenuResponseSchema.model_validate(menu, from_attributes=True)
