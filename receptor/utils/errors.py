@@ -14,5 +14,9 @@ class ConflictError(ServiceError):
     """Конфликт данных."""
 
 
+class DatabaseError(Exception):
+    """Ошибка в базе данных"""
+
+
 class AiResponseParseError(ValueError):
     """LLM вернул невалидный/неожиданный формат."""

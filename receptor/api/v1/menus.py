@@ -1,13 +1,13 @@
 from fastapi import APIRouter, status, Depends, HTTPException
 
-from receptor.api.schemas.menu import MenuCreateParams, MenuResponseSchema
+from receptor.api.schemas.menu import MenuCreateParams, MenuOut
 from receptor.api.deps.services import get_menu_service
 from receptor.services.menu_service import MenuService
 
 router = APIRouter(tags=["menus"])
 
 
-@router.post("", status_code=status.HTTP_201_CREATED, response_model=MenuResponseSchema)
+@router.post("", status_code=status.HTTP_201_CREATED, response_model=MenuOut)
 async def create_menu(
     params: MenuCreateParams,
     service: MenuService = Depends(get_menu_service),
@@ -15,7 +15,7 @@ async def create_menu(
     return await service.create(params)
 
 
-@router.get("/user/{user_id}", response_model=MenuResponseSchema)
+@router.get("/user/{user_id}", response_model=MenuOut)
 async def get_menu_by_user(
     user_id: int,
     service: MenuService = Depends(get_menu_service),

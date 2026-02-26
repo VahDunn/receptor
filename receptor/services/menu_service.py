@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Sequence
 
 from receptor.api.schemas.menu import (
     MenuCreateParams,
-    MenuResponseSchema,
+    MenuOut,
 )
 from receptor.core.domain.units import Unit
 from receptor.db.models import Menu, MenuProduct
@@ -35,7 +35,7 @@ class MenuService:
         self._prompt_builder = build_menu_prompt
         self._repo = repo
 
-    async def create(self, payload: MenuCreateParams) -> MenuResponseSchema:
+    async def create(self, payload: MenuCreateParams) -> MenuOut:
         products: Sequence["Product"] = await self._products_service.get(
             exclude_ids=payload.excluded_products_ids,
         )
@@ -109,8 +109,8 @@ class MenuService:
 
         created = await self._repo.create(menu)
         await self._repo.db.commit()
-        return MenuResponseSchema.model_validate(created, from_attributes=True)
+        return MenuOut.model_validate(created, from_attributes=True)
 
     async def get(self, user_id):
         menu = await self._repo.get(user_id)
-        return MenuResponseSchema.model_validate(menu, from_attributes=True)
+        return MenuOut.model_validate(menu, from_attributes=True)

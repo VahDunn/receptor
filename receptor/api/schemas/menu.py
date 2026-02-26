@@ -3,6 +3,8 @@ from typing import Any
 
 from pydantic import BaseModel, Field, ConfigDict
 
+from receptor.api.schemas.product import ProductOut
+
 
 class MenuCreateParams(BaseModel):
     user_id: int
@@ -12,26 +14,15 @@ class MenuCreateParams(BaseModel):
     excluded_products_ids: list[int] = Field(default_factory=list)
 
 
-class ProductResponseSchema(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: int
-    name: str
-    type_code: str
-    unit: str
-    calories_per_unit: int | None = None
-    price_rub: int | None = None
-
-
 class MenuProductResponseSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-
+    product_id: int
     unit: str
     quantity: Decimal
-    product: ProductResponseSchema
+    product: ProductOut
 
 
-class MenuResponseSchema(BaseModel):
+class MenuOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
