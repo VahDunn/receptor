@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 class Menu(BaseORM):
     __tablename__ = "menu"
 
-    user_id: Mapped[int] = mapped_column(sa.Integer, nullable=False)
+    user_id: Mapped[int] = mapped_column(sa.BIGINT, nullable=False)
     meta: Mapped[dict] = mapped_column(JSONB, nullable=False)
     calorie_target: Mapped[dict] = mapped_column(JSONB, nullable=False)
 

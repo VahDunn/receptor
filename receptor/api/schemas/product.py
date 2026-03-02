@@ -8,6 +8,7 @@ class ProductOut(BaseModel):
     unit: str
     calories_per_unit: int
     price_rub: int
+    marketplace: str
 
     class Config:
         from_attributes = True

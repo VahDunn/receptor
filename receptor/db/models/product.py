@@ -18,6 +18,7 @@ class Product(BaseORM):
     unit: Mapped[str] = mapped_column(sa.String, nullable=False)
     calories_per_unit: Mapped[int] = mapped_column(sa.SmallInteger)
     price_rub: Mapped[int]
+    marketplace: Mapped[str] = mapped_column(sa.String, nullable=False)
 
     __table_args__ = (
         sa.CheckConstraint(

@@ -1,11 +1,11 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class Unit(str, Enum):
+class Unit(StrEnum):
     g = "g"
     kg = "kg"
     ml = "ml"
-    l = "l"
+    l = "l"  # noqa: E741
     pcs = "pcs"
 
 
