@@ -1,8 +1,8 @@
 from typing import Sequence, TYPE_CHECKING
 
+from receptor.core.domain.marketplaces import Marketplace
 from receptor.db.models import Product
-
-from receptor.external_services.ai.prompts.products_prompt import PRODUCTS_PROMPT
+from receptor.external_services.ai.prompts.products_prompt import build_products_prompt
 from receptor.external_services.ai.response_schemas.ai_products_schema import (
     ProductsResponseSchema,
     ProductItemSchema,
@@ -14,6 +14,12 @@ if TYPE_CHECKING:
     from receptor.external_services.ai.parsers.default_parser import DefaultJsonAiParser
 
 
+POSITIONS_NUMBER = 200
+CALORIES_AMOUNT = 2500
+
+RESPONSE_FIELDS = ["name", "type_code", "unit", "calories_per_unit", "price_rub"]
+
+
 class ProductsService:
     def __init__(
         self,
@@ -21,14 +27,21 @@ class ProductsService:
         ai_service: AIService,
         parser: "DefaultJsonAiParser",
     ):
-        self.prompt = PRODUCTS_PROMPT
         self._repo = repo
         self.ai_service = ai_service
         self._parser = parser
+        self._prompt_builder = build_products_prompt
 
-    async def create_products_pool(self) -> Sequence[Product]:
+    async def create_products_pool(self, marketplace: Marketplace) -> Sequence[Product]:
+        prompt = self._prompt_builder(
+            marketplace=marketplace,
+            positions_number=POSITIONS_NUMBER,
+            calories_amount=CALORIES_AMOUNT,
+            response_fields=RESPONSE_FIELDS,
+        )
+
         ai_response: ProductsResponseSchema = await self.ai_service.get(
-            self.prompt,
+            prompt,
             parser=self._parser,
         )
 
@@ -37,13 +50,14 @@ class ProductsService:
         created: list[Product] = await self._repo.create_many(
             [
                 Product(
-                    name=product.name,
-                    type_code=product.type_code,
-                    unit=product.unit,
-                    calories_per_unit=product.calories_per_unit,
-                    price_rub=product.price_rub,
+                    name=p.name,
+                    type_code=p.type_code,
+                    unit=p.unit.value,
+                    calories_per_unit=p.calories_per_unit,
+                    price_rub=p.price_rub,
+                    marketplace=marketplace.value,
                 )
-                for product in products
+                for p in products
             ]
         )
         await self._repo.db.commit()
@@ -51,6 +65,7 @@ class ProductsService:
 
     async def get(
         self,
+        marketplace: Marketplace,
         exclude_ids: Sequence[int] | None = None,
     ) -> Sequence[Product]:
-        return await self._repo.get(exclude_ids=exclude_ids)
+        return await self._repo.get(marketplace=marketplace.value, exclude_ids=exclude_ids)

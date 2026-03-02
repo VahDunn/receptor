@@ -4,12 +4,14 @@ from typing import Any
 from pydantic import BaseModel, Field, ConfigDict
 
 from receptor.api.schemas.product import ProductOut
+from receptor.core.domain.marketplaces import Marketplace
 
 
 class MenuCreateParams(BaseModel):
     user_id: int
     max_kcal: int
     min_kcal: int
+    marketplace: Marketplace
     max_money: int = 10000
     excluded_products_ids: list[int] = Field(default_factory=list)
 

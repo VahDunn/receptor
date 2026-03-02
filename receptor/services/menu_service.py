@@ -37,6 +37,7 @@ class MenuService:
 
     async def create(self, payload: MenuCreateParams) -> MenuOut:
         products: Sequence["Product"] = await self._products_service.get(
+            marketplace=payload.marketplace,
             exclude_ids=payload.excluded_products_ids,
         )
         allowed_ids = tuple(p.id for p in products)
@@ -68,6 +69,7 @@ class MenuService:
             products_json,
             min_kcal=payload.min_kcal,
             max_kcal=payload.max_kcal,
+            marketplace=payload.marketplace,
         )
 
         ai_menu: WeeklyMenuAiResponseSchema = await self._ai_service.get(

@@ -17,9 +17,13 @@ class ProductRepository:
 
     async def get(
         self,
+        marketplace: str | None = None,
         exclude_ids: Sequence[int] | None = None,
     ) -> Sequence[Product]:
         stmt = sa.select(Product)
+
+        if marketplace is not None:
+            stmt = stmt.where(Product.marketplace == marketplace)
 
         if exclude_ids:
             stmt = stmt.where(Product.id.notin_(exclude_ids))
