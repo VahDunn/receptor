@@ -32,6 +32,7 @@ class ProductAdmin(ModelView, model=Product):
         Product.calories_per_unit,
         Product.price_rub,
         Product.created_at,
+        Product.marketplace,
     ]
     column_searchable_list = [
         Product.name,
@@ -46,6 +47,7 @@ class ProductAdmin(ModelView, model=Product):
         Product.calories_per_unit,
         Product.price_rub,
         Product.created_at,
+        Product.marketplace,
     ]
     form_excluded_columns = ["created_at"]
     name = "Product"

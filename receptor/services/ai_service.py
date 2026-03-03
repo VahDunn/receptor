@@ -18,5 +18,4 @@ class AIService:
 
     async def get(self, prompt: str, parser: AbstractAiParser[R]) -> R:
         raw = await self.ai_client.send_prompt(prompt)
-        print(raw)
         return parser.parse(raw)

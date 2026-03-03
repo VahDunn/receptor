@@ -76,16 +76,7 @@ class ProductsResponseSchema(BaseModel):
 
     @model_validator(mode="after")
     def validate_all(self, info: ValidationInfo):
-        if self.meta.catalog_size != len(self.items):
-            raise ValueError(
-                f"meta.catalog_size ({self.meta.catalog_size}) must equal items length ({len(self.items)})"
-            )
-
-        ctx = info.context or {}
-        expected_n = ctx.get("expected_items_count")
-        if expected_n is not None and len(self.items) != expected_n:
-            raise ValueError(f"items must contain exactly {expected_n} items")
-
+        self.meta.catalog_size = len(self.items)
         names = [i.name for i in self.items]
         duplicates = {n for n in names if names.count(n) > 1}
         if duplicates:

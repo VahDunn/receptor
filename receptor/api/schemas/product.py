@@ -1,5 +1,7 @@
 from pydantic import BaseModel
 
+from receptor.core.domain.marketplaces import Marketplace
+
 
 class ProductOut(BaseModel):
     id: int
@@ -12,3 +14,6 @@ class ProductOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+class ProductCreateParams(BaseModel):
+    marketplace: Marketplace = Marketplace.perekrestok
