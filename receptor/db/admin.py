@@ -1,3 +1,5 @@
+import json
+
 from fastapi import FastAPI
 from sqladmin import Admin, ModelView
 
@@ -60,6 +62,11 @@ class MenuAdmin(ModelView, model=Menu):
         Menu.id,
         Menu.created_at,
         Menu.user_id,
+
+        Menu.max_money_rub,
+        Menu.weekly_budget_tolerance_rub,
+        Menu.weekly_cost_estimate_rub,
+
         Menu.daily_kcal_estimates,
         Menu.meta,
         Menu.calorie_target,
@@ -68,7 +75,13 @@ class MenuAdmin(ModelView, model=Menu):
     ]
     column_list = [c for c in column_list if c is not None]
 
-    column_sortable_list = [Menu.id, Menu.created_at, Menu.user_id]
+    column_sortable_list = [
+        Menu.id,
+        Menu.created_at,
+        Menu.user_id,
+        Menu.max_money_rub,
+        Menu.weekly_cost_estimate_rub,
+    ]
     column_sortable_list = [c for c in column_sortable_list if c is not None]
 
     column_searchable_list = [
@@ -83,6 +96,11 @@ class MenuAdmin(ModelView, model=Menu):
     name_plural = "Menus"
     icon = "fa-solid fa-utensils"
 
+    column_formatters = {
+        Menu.meta: lambda m, a: json.dumps(m.meta, ensure_ascii=False, indent=2),
+        Menu.calorie_target: lambda m, a: json.dumps(m.calorie_target, ensure_ascii=False, indent=2),
+        Menu.menu_structure: lambda m, a: json.dumps(m.menu_structure, ensure_ascii=False, indent=2),
+    }
 
 class MenuProductAdmin(ModelView, model=MenuProduct):
     column_list = [

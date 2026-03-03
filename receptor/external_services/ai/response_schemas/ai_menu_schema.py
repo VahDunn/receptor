@@ -19,7 +19,7 @@ class CalorieTargetSchema(BaseModel):
 
 class DishSchema(BaseModel):
     dish_name: str
-    products: list[int] = Field(default_factory=list)  # ✅ product_id
+    products: list[int] = Field(default_factory=list)
 
     @field_validator("dish_name")
     @classmethod
@@ -35,9 +35,7 @@ class DishSchema(BaseModel):
         if not (2 <= len(v) <= 5):
             raise ValueError("dish.products must contain 2..5 items")
         if any(pid <= 0 for pid in v):
-            raise ValueError(
-                "dish.products must contain positive integers (product_id)"
-            )
+            raise ValueError("dish.products must contain positive integers (product_id)")
         if len(v) != len(set(v)):
             raise ValueError("dish.products must be unique within a dish")
         return v
@@ -90,6 +88,7 @@ class WeeklyMenuAiResponseSchema(BaseModel):
     calorie_target: CalorieTargetSchema
     menu_structure: list[MenuDaySchema]
     daily_kcal_estimates: list[int]
+    weekly_cost_estimate_rub: int
     products_with_quantities: list[ProductQuantitySchema]
 
     @model_validator(mode="after")
@@ -98,6 +97,8 @@ class WeeklyMenuAiResponseSchema(BaseModel):
             raise ValueError("menu_structure must contain exactly 7 items")
         if len(self.daily_kcal_estimates) != 7:
             raise ValueError("daily_kcal_estimates must contain 7 items")
+        if self.weekly_cost_estimate_rub <= 0:
+            raise ValueError("weekly_cost_estimate_rub must be > 0")
 
         days = sorted(d.day for d in self.menu_structure)
         if days != [1, 2, 3, 4, 5, 6, 7]:
@@ -108,32 +109,50 @@ class WeeklyMenuAiResponseSchema(BaseModel):
             for dish in d.breakfast + d.lunch + d.dinner:
                 ids_in_menu.update(dish.products)
 
-        ids_in_qty = {p.product_id for p in self.products_with_quantities}
+        ctx = info.context or {}
+        unit_by_id = ctx.get("unit_by_product_id")
 
+        ids_in_qty = {p.product_id for p in self.products_with_quantities}
         missing_qty = ids_in_menu - ids_in_qty
+
+        if missing_qty and unit_by_id is not None:
+            min_by_unit = {
+                Unit.pcs: Decimal("1"),
+                Unit.g: Decimal("100"),
+                Unit.ml: Decimal("100"),
+                Unit.kg: Decimal("0.2"),
+                Unit.l: Decimal("0.2"),
+            }
+            fixed = list(self.products_with_quantities)
+            for pid in sorted(missing_qty):
+                u = unit_by_id.get(pid)
+                if u is None:
+                    continue
+                fixed.append(
+                    ProductQuantitySchema(
+                        product_id=pid,
+                        unit=u,
+                        quantity=min_by_unit[u],
+                    )
+                )
+            self.products_with_quantities = fixed
+            ids_in_qty = {p.product_id for p in self.products_with_quantities}
+            missing_qty = ids_in_menu - ids_in_qty
+
         if missing_qty:
-            raise ValueError(
-                f"products_with_quantities missing product_id(s): {sorted(missing_qty)}"
-            )
+            raise ValueError(f"products_with_quantities missing product_id(s): {sorted(missing_qty)}")
 
         extra_qty = ids_in_qty - ids_in_menu
         if extra_qty:
-            raise ValueError(
-                f"products_with_quantities has unused product_id(s): {sorted(extra_qty)}"
-            )
-
-        ctx = info.context or {}
+            raise ValueError(f"products_with_quantities has unused product_id(s): {sorted(extra_qty)}")
 
         allowed_ids = ctx.get("allowed_product_ids")
         if allowed_ids is not None:
             allowed_set = set(allowed_ids)
             unknown = (ids_in_menu | ids_in_qty) - allowed_set
             if unknown:
-                raise ValueError(
-                    f"AI returned product_id(s) not present in input list: {sorted(unknown)}"
-                )
+                raise ValueError(f"AI returned product_id(s) not present in input list: {sorted(unknown)}")
 
-        unit_by_id = ctx.get("unit_by_product_id")
         if unit_by_id is not None:
             mismatched = []
             for pq in self.products_with_quantities:
@@ -141,9 +160,16 @@ class WeeklyMenuAiResponseSchema(BaseModel):
                 if expected is not None and pq.unit != expected:
                     mismatched.append((pq.product_id, expected, pq.unit))
             if mismatched:
-                msg = ", ".join(
-                    f"{pid} expected {exp} got {got}" for pid, exp, got in mismatched
-                )
+                msg = ", ".join(f"{pid} expected {exp} got {got}" for pid, exp, got in mismatched)
                 raise ValueError(f"Unit mismatch for product_id(s): {msg}")
+
+        weekly_budget = ctx.get("weekly_budget_rub")
+        weekly_tol = ctx.get("weekly_budget_tolerance_rub")
+        if weekly_budget is not None and weekly_tol is not None:
+            lo, hi = weekly_budget - weekly_tol, weekly_budget + weekly_tol
+            if not (lo <= self.weekly_cost_estimate_rub <= hi):
+                raise ValueError(
+                    f"weekly_cost_estimate_rub out of range [{lo},{hi}]: {self.weekly_cost_estimate_rub}"
+                )
 
         return self

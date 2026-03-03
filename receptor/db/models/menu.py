@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
@@ -20,12 +18,16 @@ class Menu(BaseORM):
     meta: Mapped[dict] = mapped_column(JSONB, nullable=False)
     calorie_target: Mapped[dict] = mapped_column(JSONB, nullable=False)
 
+    max_money_rub: Mapped[int] = mapped_column(sa.Integer, nullable=False)
+    weekly_budget_tolerance_rub: Mapped[int] = mapped_column(sa.Integer, nullable=False)
+
     menu_structure: Mapped[list[dict]] = mapped_column(JSONB, nullable=False)
 
     daily_kcal_estimates: Mapped[list[int]] = mapped_column(
         sa.ARRAY(sa.Integer),
         nullable=False,
     )
+    weekly_cost_estimate_rub: Mapped[int] = mapped_column(sa.Integer, nullable=False)
 
     products_with_quantities: Mapped[list["MenuProduct"]] = relationship(
         "MenuProduct",
@@ -50,12 +52,9 @@ class MenuProduct(BaseORM):
     )
 
     unit: Mapped[str] = mapped_column(sa.String(8), nullable=False)
-
     quantity: Mapped[Decimal] = mapped_column(sa.Numeric(10, 3), nullable=False)
 
-    menu: Mapped["Menu"] = relationship(
-        "Menu", back_populates="products_with_quantities"
-    )
+    menu: Mapped["Menu"] = relationship("Menu", back_populates="products_with_quantities")
     product: Mapped["Product"] = relationship("Product")
 
     __table_args__ = (

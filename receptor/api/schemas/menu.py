@@ -12,7 +12,8 @@ class MenuCreateParams(BaseModel):
     max_kcal: int
     min_kcal: int
     marketplace: Marketplace
-    max_money: int = 10000
+    max_money_rub: int = 10000
+    max_money_tolerance_rub: int = 500
     excluded_products_ids: list[int] = Field(default_factory=list)
 
 
@@ -30,9 +31,10 @@ class MenuOut(BaseModel):
     id: int
     meta: dict[str, Any]
     calorie_target: dict[str, Any]
+    max_money_rub: int
+    weekly_budget_tolerance_rub: int
     menu_structure: list[dict[str, Any]]
     daily_kcal_estimates: list[int]
-    products_with_quantities: list[MenuProductResponseSchema] = Field(
-        default_factory=list
-    )
+    weekly_cost_estimate_rub: int
+    products_with_quantities: list[MenuProductResponseSchema] = Field(default_factory=list)
     created_at: Any | None = None
