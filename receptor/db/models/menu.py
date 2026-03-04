@@ -8,13 +8,24 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from receptor.db.models.base import BaseORM
 
 if TYPE_CHECKING:
+    from receptor.db.models.user import User
     from receptor.db.models import Product
 
 
 class Menu(BaseORM):
     __tablename__ = "menu"
 
-    user_id: Mapped[int] = mapped_column(sa.BIGINT, nullable=False)
+    user_id: Mapped[int] = mapped_column(
+        sa.ForeignKey("user.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+
+    user: Mapped["User"] = relationship(
+        "User",
+        back_populates="menus",
+    )
+
     meta: Mapped[dict] = mapped_column(JSONB, nullable=False)
     calorie_target: Mapped[dict] = mapped_column(JSONB, nullable=False)
 

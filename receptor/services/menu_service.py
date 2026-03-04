@@ -114,6 +114,9 @@ class MenuService:
         await self._repo.db.commit()
         return MenuOut.model_validate(created, from_attributes=True)
 
-    async def get(self, user_id: int) -> MenuOut:
-        menu = await self._repo.get(user_id)
-        return MenuOut.model_validate(menu, from_attributes=True)
+    async def get(self, user_id: int) -> Sequence[MenuOut]:
+        menus: Sequence["Menu"] = await self._repo.list_by_user(user_id)
+        return [
+            MenuOut.model_validate(m, from_attributes=True)
+            for m in menus
+        ]

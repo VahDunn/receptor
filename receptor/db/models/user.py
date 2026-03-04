@@ -1,16 +1,39 @@
+from typing import TYPE_CHECKING
 import sqlalchemy as sa
-from receptor.db.models import BaseORM
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.orm import Mapped, relationship, mapped_column
 
-from receptor.db.models.menu import Menu
+from receptor.db.models.base import BaseORM
+from receptor.db.models.user_product import user_excluded_product
 
+if TYPE_CHECKING:
+    from receptor.db.models.menu import Menu
+    from receptor.db.models.product import Product
+    from receptor.db.models.user_settings import UserSettings
 
 class User(BaseORM):
     __tablename__ = "user"
+    name: Mapped[str] = mapped_column(sa.String, nullable=False)
 
-    menus: Mapped[Menu] = relationship()
-    excluded_products_ids: Mapped[int] = mapped_column(ARRAY(sa.BigInteger))
-    excluded_products: Mapped[Menu] = (
-        relationship()
-    )  # TODO будет таблица n-n для  пользователей и исключенных ими продуктов
+    settings: Mapped["UserSettings"] = relationship(
+        "UserSettings",
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+
+    menus: Mapped[list["Menu"]] = relationship(
+        "Menu",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+
+    excluded_products: Mapped[list["Product"]] = relationship(
+        "Product",
+        secondary=user_excluded_product,
+        back_populates="excluded_by_users",
+    )
+
+
+

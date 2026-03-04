@@ -1,10 +1,15 @@
+from typing import TYPE_CHECKING
+
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 import sqlalchemy as sa
 
 from receptor.core.domain.units import Unit
 from receptor.db.models.product_type import ProductType
 from receptor.db.models.base import BaseORM
+from receptor.db.models.user_product import user_excluded_product
 
+if TYPE_CHECKING:
+    from receptor.db.models.user import User
 
 class Product(BaseORM):
     __tablename__ = "product"
@@ -19,6 +24,12 @@ class Product(BaseORM):
     calories_per_unit: Mapped[int] = mapped_column(sa.SmallInteger)
     price_rub: Mapped[int]
     marketplace: Mapped[str] = mapped_column(sa.String, nullable=False)
+
+    excluded_by_users: Mapped[list["User"]] = relationship(
+        "User",
+        secondary=user_excluded_product,
+        back_populates="excluded_products",
+    )
 
     __table_args__ = (
         sa.CheckConstraint(

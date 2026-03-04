@@ -15,15 +15,9 @@ async def create_menu(
     return await service.create(params)
 
 
-@router.get("/user/{user_id}", response_model=MenuOut)
-async def get_menu_by_user(
+@router.get("/user/{user_id}", response_model=list[MenuOut])
+async def get_menus_by_user(
     user_id: int,
     service: MenuService = Depends(get_menu_service),
 ):
-    menu = await service.get(user_id)
-    if not menu:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Menu not found",
-        )
-    return menu
+    return await service.get(user_id)
