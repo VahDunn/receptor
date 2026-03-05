@@ -34,7 +34,7 @@ class MenuRepository:
         res = await self.db.execute(stmt)
         return res.scalar_one_or_none()
 
-    async def list_by_user(self, user_id: int) -> Sequence[Menu] | None:
+    async def list_by_user(self, user_id: int) -> Sequence[Menu]:
         stmt = (
             sa.select(Menu)
             .where(Menu.user_id == user_id)
