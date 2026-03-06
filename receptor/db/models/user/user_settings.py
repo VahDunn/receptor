@@ -5,7 +5,7 @@ import sqlalchemy as sa
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 if TYPE_CHECKING:
-    from receptor.db.models.user import User
+    from receptor.db.models.user.user import User
 
 
 class UserSettings(Base):

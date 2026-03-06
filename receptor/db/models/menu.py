@@ -8,7 +8,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from receptor.db.models.base import BaseORM
 
 if TYPE_CHECKING:
-    from receptor.db.models.user import User
+    from receptor.db.models.user.user import User
     from receptor.db.models import Product
 
 

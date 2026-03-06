@@ -3,12 +3,12 @@ import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 
 from receptor.db.models.base import BaseORM
-from receptor.db.models.user_product import user_excluded_product
+from receptor.db.models.user.user_product import user_excluded_product
 
 if TYPE_CHECKING:
     from receptor.db.models.menu import Menu
     from receptor.db.models.product import Product
-    from receptor.db.models.user_settings import UserSettings
+    from receptor.db.models.user.user_settings import UserSettings
 
 class User(BaseORM):
     __tablename__ = "user"
