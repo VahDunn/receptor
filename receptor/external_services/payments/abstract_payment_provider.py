@@ -57,3 +57,9 @@ class AbstractPaymentProvider(ABC):
     ) -> WebhookEvent:
         """Проверить подпись/валидировать и распарсить вебхук."""
         raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def name(self) -> str:
+        """Уникальное имя провайдера (yookassa, stripe и т.п.)"""
+        raise NotImplementedError
