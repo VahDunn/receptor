@@ -7,7 +7,7 @@ from receptor.core.domain.account_payment.payments import PaymentStatus, Webhook
 
 @dataclass(frozen=True, slots=True)
 class PaymentAmount:
-    amount_cop: int
+    amount_minor: int
     currency: CurrencyCode
 
 

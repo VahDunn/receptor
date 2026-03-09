@@ -13,6 +13,15 @@ from receptor.db.models.base import BaseORM
 if TYPE_CHECKING:
     from receptor.db.models.user.user import User
 
+
+currency_code_enum = sa.Enum(
+    CurrencyCode,
+    name="currency_code",
+    native_enum=False,
+    create_constraint=True,
+    validate_strings=True,
+)
+
 class UserAccount(BaseORM):
     __tablename__ = "user_account"
 
@@ -62,14 +71,7 @@ class LedgerEntry(BaseORM):
     amount_minor: Mapped[int] = mapped_column(sa.BigInteger, nullable=False)
 
     currency: Mapped[CurrencyCode] = mapped_column(
-        sa.Enum(
-            CurrencyCode,
-            name="currency_code",
-            native_enum=False,
-            create_constraint=True,
-            validate_strings=True,
-        ),
-        nullable=False,
+        currency_code_enum, nullable=False,
     )
 
     entry_type: Mapped[AccountEntryType] = mapped_column(
@@ -122,13 +124,7 @@ class AccountPayment(BaseORM):
     amount_minor: Mapped[int] = mapped_column(sa.BigInteger, nullable=False)
 
     currency: Mapped[CurrencyCode] = mapped_column(
-        sa.Enum(
-            CurrencyCode,
-            name="currency_code",
-            native_enum=False,
-            create_constraint=True,
-            validate_strings=True,
-        ),
+        currency_code_enum,
         nullable=False,
     )
 
