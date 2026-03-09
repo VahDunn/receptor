@@ -26,6 +26,8 @@ if TYPE_CHECKING:
     from receptor.db.models import Product
 
 
+MENU_PRICE = 100
+
 class MenuService:
     def __init__(
         self,
@@ -34,7 +36,6 @@ class MenuService:
         parser: DefaultJsonAiParser[WeeklyMenuAiResponseSchema],
         repo: MenuRepository,
         payment_service: PaymentService,
-        menu_generation_price_minor: int,
     ):
         self._products_service = products_service
         self._ai_service = ai_service
@@ -42,7 +43,7 @@ class MenuService:
         self._prompt_builder = build_menu_prompt
         self._repo = repo
         self._payment_service = payment_service
-        self._menu_generation_price_minor = menu_generation_price_minor
+        self._menu_generation_price_minor = MENU_PRICE
 
     async def create(self, payload: MenuCreateParams) -> MenuOut:
         products: Sequence["Product"] = await self._products_service.get(

@@ -5,7 +5,7 @@ from fastapi import Depends
 from receptor.api.deps.ai import get_ai_client
 from receptor.api.deps.ai import get_menu_parser, get_products_parser
 from receptor.api.deps.payment import get_yookassa
-from receptor.api.deps.repositories import get_product_repository, get_menu_repository, get_payment_repository
+from receptor.api.deps.repos import get_product_repository, get_menu_repository, get_payment_repository
 from receptor.repositories.payment_repo import PaymentRepository
 from receptor.services.menu_service import MenuService
 from receptor.services.product_service import ProductsService
