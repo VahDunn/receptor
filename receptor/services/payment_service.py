@@ -23,7 +23,7 @@ from receptor.external_services.payments.abstract_payment_provider import (
     WebhookEvent,
 )
 from receptor.repositories.payment_repo import PaymentRepository
-from receptor.utils.errors import DatabaseError
+from receptor.core.errors import DatabaseError
 
 
 class PaymentService:

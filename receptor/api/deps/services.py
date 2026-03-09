@@ -9,14 +9,14 @@ from receptor.api.deps.repos import get_product_repository, get_menu_repository,
 from receptor.repositories.payment_repo import PaymentRepository
 from receptor.services.menu_service import MenuService
 from receptor.services.product_service import ProductsService
-
+from receptor.services.payment_service import PaymentService
+from receptor.services.ai_service import AIService
 
 if TYPE_CHECKING:
     from receptor.external_services.ai.parsers.default_parser import DefaultJsonAiParser
-    from receptor.services.ai_service import AIService
     from receptor.repositories.product_repo import ProductRepository
     from receptor.repositories.menu_repo import MenuRepository
-    from receptor.services.payment_service import PaymentService
+
     from receptor.external_services.ai.clients.abstract_ai_client import AbstractAiClient
     from receptor.external_services.payments.abstract_payment_provider import AbstractPaymentProvider
 
@@ -55,6 +55,7 @@ def get_menu_service(
         ai_service=ai_service,
         parser=parser,
         repo=repo,
+        payment_service=payment_service,
     )
 
 

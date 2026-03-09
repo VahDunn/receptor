@@ -8,7 +8,7 @@ from typing import Any, Generic, Mapping, Type, TypeVar
 from pydantic import BaseModel, ValidationError as PydanticValidationError
 
 from receptor.external_services.ai.parsers.abstract_parser import AbstractAiParser
-from receptor.utils.errors import AiResponseParseError
+from receptor.core.errors import AiResponseParseError
 
 
 T = TypeVar("T", bound=BaseModel)

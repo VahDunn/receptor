@@ -6,7 +6,7 @@ import sqlalchemy as sa
 from receptor.core.domain.units import Unit
 from receptor.db.models.product_type import ProductType
 from receptor.db.models.base import BaseORM
-from receptor.db.models.user.user_product import user_excluded_product
+from receptor.db.models.user.user import user_excluded_product
 
 if TYPE_CHECKING:
     from receptor.db.models.user.user import User
