@@ -1,14 +1,25 @@
-from fastapi import Depends, Request
+from fastapi import Request
 
 from receptor.external_services.ai.clients.abstract_ai_client import AbstractAiClient
-from receptor.services.ai_service import AIService
-
+from receptor.external_services.ai.parsers.default_parser import DefaultJsonAiParser
+from receptor.external_services.ai.response_schemas.ai_products_schema import (
+    ProductsResponseSchema,
+)
+from receptor.external_services.ai.response_schemas.ai_menu_schema import (
+    WeeklyMenuAiResponseSchema,
+)
 
 def get_ai_client(request: Request) -> AbstractAiClient:
     return request.app.state.ai_client
 
+def get_products_parser() -> DefaultJsonAiParser[ProductsResponseSchema]:
+    return DefaultJsonAiParser(
+        schema=ProductsResponseSchema,
+        strict_json_only=True,
+    )
 
-def get_ai_service(
-    ai_client: AbstractAiClient = Depends(get_ai_client),
-) -> AIService:
-    return AIService(ai_client=ai_client)
+def get_menu_parser() -> DefaultJsonAiParser[WeeklyMenuAiResponseSchema]:
+    return DefaultJsonAiParser(
+        schema=WeeklyMenuAiResponseSchema,
+        strict_json_only=True,
+    )
