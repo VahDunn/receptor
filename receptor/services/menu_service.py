@@ -10,7 +10,9 @@ from receptor.core.domain.account_payment.account_entry_meta_schema import (
     ChargeMenuGenerationMeta,
 )
 from receptor.core.domain.account_payment.payments import CurrencyCode
+from receptor.core.domain.account_payment.pricing import PricingMinor
 from receptor.core.domain.units import Unit
+from receptor.core.errors import EntityNotFoundError, InsufficientFundsError
 from receptor.db.models import Menu, MenuProduct
 from receptor.external_services.ai.parsers.default_parser import DefaultJsonAiParser
 from receptor.external_services.ai.prompts.menu_prompt import build_menu_prompt
@@ -25,8 +27,6 @@ from receptor.services.product_service import ProductsService
 if TYPE_CHECKING:
     from receptor.db.models import Product
 
-
-MENU_PRICE = 100
 
 class MenuService:
     def __init__(
@@ -43,10 +43,15 @@ class MenuService:
         self._prompt_builder = build_menu_prompt
         self._repo = repo
         self._payment_service = payment_service
-        self._menu_generation_price_minor = MENU_PRICE
 
     async def create(self, payload: MenuCreateParams) -> MenuOut:
-        products: Sequence["Product"] = await self._products_service.get(
+        if not await self._payment_service.balance_is_enough(
+            payload.user_id, PricingMinor.menu_ru
+        ):
+            raise InsufficientFundsError(
+                f"Not enough funds available for {payload.user_id}"
+            )
+        products: Sequence[Product] = await self._products_service.get(
             marketplace=payload.marketplace,
             exclude_ids=payload.excluded_products_ids,
         )
@@ -63,7 +68,7 @@ class MenuService:
             },
         )
 
-        products_payload = [
+        products_payload: list[dict[str, int | str]] = [
             {
                 "id": p.id,
                 "name": p.name,
@@ -75,9 +80,9 @@ class MenuService:
             for p in products
         ]
 
-        products_json = json.dumps(products_payload, ensure_ascii=False)
+        products_json: str = json.dumps(products_payload, ensure_ascii=False)
 
-        prompt = self._prompt_builder(
+        prompt: str = self._prompt_builder(
             products_json,
             min_kcal=payload.min_kcal,
             max_kcal=payload.max_kcal,
@@ -93,7 +98,7 @@ class MenuService:
 
         menu = Menu(
             user_id=payload.user_id,
-            meta=ai_menu.meta.model_dump(mode="json"),
+            menu_meta=ai_menu.meta.model_dump(mode="json"),
             calorie_target=ai_menu.calorie_target.model_dump(mode="json"),
             max_money_rub=payload.max_money_rub,
             weekly_budget_tolerance_rub=payload.max_money_tolerance_rub,
@@ -128,11 +133,12 @@ class MenuService:
             for pq in ai_menu.products_with_quantities
         ]
 
-        async with self._repo.db.begin():
+        try:
             created = await self._repo.create(menu)
+
             await self._payment_service.debit(
                 user_id=payload.user_id,
-                amount_minor=self._menu_generation_price_minor,
+                amount_minor=PricingMinor.menu_ru,
                 currency=CurrencyCode.RUB,
                 operation_key=f"menu_generation:{created.id}",
                 meta=ChargeMenuGenerationMeta(
@@ -142,15 +148,25 @@ class MenuService:
                 ),
             )
 
-        created_full = await self._repo.get_by_id(created.id)
+            created_id = created.id
+            await self._repo.db.commit()
+
+        except Exception:
+            await self._repo.db.rollback()
+            raise
+
+        created_full = await self._repo.get_by_id(created_id)
         if not created_full:
-            raise RuntimeError(f"Menu {created.id} not found after commit")
+            raise RuntimeError(f"Menu {created_id} not found after commit")
 
         return MenuOut.model_validate(created_full, from_attributes=True)
 
     async def get(self, user_id: int) -> Sequence[MenuOut]:
-        menus: Sequence["Menu"] = await self._repo.get_by_user(user_id)
-        return [
-            MenuOut.model_validate(m, from_attributes=True)
-            for m in menus
-        ]
+        menus: Sequence[Menu] = await self._repo.get_by_user(user_id)
+        return [MenuOut.model_validate(m, from_attributes=True) for m in menus]
+
+    async def get_by_id_for_user(self, user_id: int, menu_id: int) -> Menu:
+        menu = await self._repo.get_by_id_for_user(user_id=user_id, menu_id=menu_id)
+        if menu is None:
+            raise EntityNotFoundError("Menu not found")
+        return menu

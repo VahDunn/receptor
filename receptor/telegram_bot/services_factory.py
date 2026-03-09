@@ -9,7 +9,7 @@ from receptor.external_services.ai.response_schemas.ai_products_schema import Pr
 from receptor.repositories import UserRepository, MenuRepository, PaymentRepository, ProductRepository
 from receptor.services import UserService, MenuService, PaymentService, AIService, ProductsService
 from receptor.external_services.payments.yoo_kassa_provider import YooKassaProvider
-
+from receptor.services.menu_pdf_service import MenuPdfService
 
 session_factory = async_sessionmaker(
     bind=engine,
@@ -26,6 +26,7 @@ async def build_services(
     UserService,
     MenuService,
     PaymentService,
+    MenuPdfService,
 ]:
     session: AsyncSession = session_factory()
 
@@ -68,5 +69,6 @@ async def build_services(
         repo=menu_repo,
         payment_service=payment_service,
     )
+    menu_pdf_service = MenuPdfService()
 
-    return session, user_service, menu_service, payment_service
+    return session, user_service, menu_service, payment_service, menu_pdf_service

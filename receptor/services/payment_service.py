@@ -1,9 +1,9 @@
+from receptor.core.domain.account_payment.account_entry_meta_kind import (
+    AccountEntryMetaKind,
+)
 from receptor.core.domain.account_payment.account_entry_meta_schema import (
     AccountEntryMeta,
     TopupMeta,
-)
-from receptor.core.domain.account_payment.account_entry_meta_kind import (
-    AccountEntryMetaKind,
 )
 from receptor.core.domain.account_payment.account_entry_types import AccountEntryType
 from receptor.core.domain.account_payment.payments import (
@@ -11,10 +11,13 @@ from receptor.core.domain.account_payment.payments import (
     PaymentStatus,
     WebhookEventType,
 )
+from receptor.core.domain.account_payment.pricing import PricingMinor
+from receptor.core.errors import DatabaseError
 from receptor.db.models.user.user_account import (
     AccountPayment,
     LedgerEntry,
-    ProcessedWebhookEvent, UserAccount,
+    ProcessedWebhookEvent,
+    UserAccount,
 )
 from receptor.external_services.payments.abstract_payment_provider import (
     AbstractPaymentProvider,
@@ -23,7 +26,6 @@ from receptor.external_services.payments.abstract_payment_provider import (
     WebhookEvent,
 )
 from receptor.repositories.payment_repo import PaymentRepository
-from receptor.core.errors import DatabaseError
 
 
 class PaymentService:
@@ -59,9 +61,13 @@ class PaymentService:
             raw_last_event=None,
         )
 
-        created = await self._repo.create_payment(payment)
-        await self._repo.db.commit()
-        return created
+        try:
+            created = await self._repo.create_payment(payment)
+            await self._repo.db.commit()
+            return created
+        except Exception:
+            await self._repo.db.rollback()
+            raise
 
     async def sync_payment_status(
         self,
@@ -79,13 +85,17 @@ class PaymentService:
 
         provider_response = await self._provider.get_payment(provider_payment_id)
 
-        await self._repo.update_payment_status(
-            payment=payment,
-            status=provider_response.status,
-            confirmation_url=provider_response.confirmation_url,
-        )
-        await self._repo.db.commit()
-        return payment
+        try:
+            await self._repo.update_payment_status(
+                payment=payment,
+                status=provider_response.status,
+                confirmation_url=provider_response.confirmation_url,
+            )
+            await self._repo.db.commit()
+            return payment
+        except Exception:
+            await self._repo.db.rollback()
+            raise
 
     async def handle_webhook(
         self,
@@ -98,7 +108,7 @@ class PaymentService:
             body=body,
         )
 
-        async with self._repo.db.begin():
+        try:
             processed_payment = await self._get_already_processed_payment(event=event)
             if processed_payment is not None:
                 return processed_payment
@@ -142,6 +152,12 @@ class PaymentService:
                     ),
                 )
 
+            await self._repo.db.commit()
+
+        except Exception:
+            await self._repo.db.rollback()
+            raise
+
         refreshed = await self._repo.get_payment_by_provider_payment_id(
             provider=self._provider.name,
             provider_payment_id=event.provider_payment_id,
@@ -161,11 +177,12 @@ class PaymentService:
         operation_key: str,
         meta: AccountEntryMeta,
     ) -> LedgerEntry:
-        existing: LedgerEntry | None = (
-            await self._repo.get_ledger_entry_by_operation_key(operation_key)
-        )
+        existing: (
+            LedgerEntry | None
+        ) = await self._repo.get_ledger_entry_by_operation_key(operation_key)
         if existing:
             return existing
+
         account = await self._account_get_and_check(
             user_id=user_id,
             amount_minor=amount_minor,
@@ -173,6 +190,7 @@ class PaymentService:
         )
         if account.balance_minor < amount_minor:
             raise DatabaseError("Insufficient funds")
+
         account.balance_minor -= amount_minor
 
         entry = LedgerEntry(
@@ -181,7 +199,7 @@ class PaymentService:
             currency=currency,
             entry_type=AccountEntryType.DEBIT,
             operation_key=operation_key,
-            meta=meta.model_dump(mode="json"),
+            ledger_meta=meta.model_dump(mode="json"),
         )
         await self._repo.create_ledger_entry(entry)
         return entry
@@ -195,11 +213,12 @@ class PaymentService:
         operation_key: str,
         meta: AccountEntryMeta,
     ) -> LedgerEntry:
-        existing: LedgerEntry | None = (
-            await self._repo.get_ledger_entry_by_operation_key(operation_key)
-        )
+        existing: (
+            LedgerEntry | None
+        ) = await self._repo.get_ledger_entry_by_operation_key(operation_key)
         if existing:
             return existing
+
         account = await self._account_get_and_check(
             user_id=user_id,
             amount_minor=amount_minor,
@@ -213,20 +232,27 @@ class PaymentService:
             currency=currency,
             entry_type=AccountEntryType.CREDIT,
             operation_key=operation_key,
-            meta=meta.model_dump(mode="json"),
+            ledger_meta=meta.model_dump(mode="json"),
         )
         await self._repo.create_ledger_entry(entry)
         return entry
 
     async def get_balance(
         self,
-        *,
         user_id: int,
     ) -> int:
         account = await self._repo.get_account_by_user_id(user_id)
         if not account:
             raise DatabaseError(f"Account for user {user_id} not found")
         return account.balance_minor
+
+    async def balance_is_enough(
+        self,
+        user_id: int,
+        operation_price: PricingMinor,
+    ) -> bool:
+        balance_minor = await self.get_balance(user_id)
+        return balance_minor >= operation_price.value
 
     async def _get_already_processed_payment(
         self,
@@ -262,9 +288,7 @@ class PaymentService:
         if amount_minor <= 0:
             raise DatabaseError("amount_minor must be positive")
 
-        account: UserAccount | None = (
-            await self._repo.lock_account_by_user_id(user_id)
-        )
+        account: UserAccount | None = await self._repo.lock_account_by_user_id(user_id)
         if not account:
             raise DatabaseError(f"Account for user {user_id} not found")
 
@@ -273,7 +297,6 @@ class PaymentService:
                 f"Account currency mismatch: {account.currency} != {currency}"
             )
         return account
-
 
     @staticmethod
     def _is_successful_payment_event(event: WebhookEvent) -> bool:

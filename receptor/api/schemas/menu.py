@@ -1,7 +1,7 @@
 from decimal import Decimal
 from typing import Any
 
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from receptor.api.schemas.product import ProductOut
 from receptor.core.domain.marketplaces import Marketplace
@@ -29,7 +29,7 @@ class MenuOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
-    meta: dict[str, Any]
+    menu_meta: dict[str, Any]
     calorie_target: dict[str, Any]
     max_money_rub: int
     weekly_budget_tolerance_rub: int

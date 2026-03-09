@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
+
 import sqlalchemy as sa
-from sqlalchemy.orm import Mapped, relationship, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from receptor.core.domain.user_roles import UserRole
 from receptor.db.models.base import BaseORM
@@ -8,9 +9,9 @@ from receptor.db.models.base import BaseORM
 if TYPE_CHECKING:
     from receptor.db.models.menu import Menu
     from receptor.db.models.product import Product
-    from receptor.db.models.user.user_settings import UserSettings
-    from receptor.db.models.user.user_identity import UserIdentity
     from receptor.db.models.user.user_account import UserAccount
+    from receptor.db.models.user.user_identity import UserIdentity
+    from receptor.db.models.user.user_settings import UserSettings
 
 
 user_excluded_product = sa.Table(
@@ -88,3 +89,8 @@ class User(BaseORM):
         back_populates="excluded_by_users",
     )
 
+    def __str__(self) -> str:
+        return f"{self.id} | {self.name}"
+
+    def __repr__(self) -> str:
+        return f"User(id={self.id}, name='{self.name}')"

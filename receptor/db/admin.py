@@ -6,13 +6,13 @@ from sqladmin import Admin, ModelView
 from receptor.db.engine import engine
 from receptor.db.models import Menu, MenuProduct, Product, ProductType
 from receptor.db.models.user.user import User
-from receptor.db.models.user.user_settings import UserSettings
-from receptor.db.models.user.user_identity import UserIdentity
 from receptor.db.models.user.user_account import (
-    UserAccount,
-    LedgerEntry,
     AccountPayment,
+    LedgerEntry,
+    UserAccount,
 )
+from receptor.db.models.user.user_identity import UserIdentity
+from receptor.db.models.user.user_settings import UserSettings
 
 
 class ProductTypeAdmin(ModelView, model=ProductType):
@@ -166,7 +166,8 @@ class UserIdentityAdmin(ModelView, model=UserIdentity):
     column_formatters = {
         UserIdentity.raw_meta: lambda m, a: (
             json.dumps(m.raw_meta, ensure_ascii=False, indent=2)
-            if m.raw_meta is not None else ""
+            if m.raw_meta is not None
+            else ""
         ),
     }
 
@@ -211,7 +212,7 @@ class LedgerEntryAdmin(ModelView, model=LedgerEntry):
         LedgerEntry.currency,
         LedgerEntry.entry_type,
         LedgerEntry.operation_key,
-        LedgerEntry.meta,
+        LedgerEntry.ledger_meta,
         LedgerEntry.created_at,
         LedgerEntry.account,
     ]
@@ -231,9 +232,10 @@ class LedgerEntryAdmin(ModelView, model=LedgerEntry):
     form_excluded_columns = ["created_at"]
 
     column_formatters = {
-        LedgerEntry.meta: lambda m, a: (
+        LedgerEntry.ledger_meta: lambda m, a: (
             json.dumps(m.meta, ensure_ascii=False, indent=2)
-            if m.meta is not None else ""
+            if m.meta is not None
+            else ""
         ),
     }
 
@@ -277,7 +279,8 @@ class AccountPaymentAdmin(ModelView, model=AccountPayment):
     column_formatters = {
         AccountPayment.raw_last_event: lambda m, a: (
             json.dumps(m.raw_last_event, ensure_ascii=False, indent=2)
-            if m.raw_last_event is not None else ""
+            if m.raw_last_event is not None
+            else ""
         ),
     }
 
@@ -295,7 +298,7 @@ class MenuAdmin(ModelView, model=Menu):
         Menu.weekly_budget_tolerance_rub,
         Menu.weekly_cost_estimate_rub,
         Menu.daily_kcal_estimates,
-        Menu.meta,
+        Menu.menu_meta,
         Menu.calorie_target,
         Menu.menu_structure,
         Menu.products_with_quantities,
@@ -312,7 +315,11 @@ class MenuAdmin(ModelView, model=Menu):
         Menu.id,
         Menu.user_id,
     ]
-    form_excluded_columns = ["created_at", "products_with_quantities"]
+    form_excluded_columns = [
+        "created_at",
+        "products_with_quantities",
+        "daily_kcal_estimates",
+    ]
     page_size = 50
 
     name = "Menu"
@@ -320,9 +327,15 @@ class MenuAdmin(ModelView, model=Menu):
     icon = "fa-solid fa-utensils"
 
     column_formatters = {
-        Menu.meta: lambda m, a: json.dumps(m.meta, ensure_ascii=False, indent=2),
-        Menu.calorie_target: lambda m, a: json.dumps(m.calorie_target, ensure_ascii=False, indent=2),
-        Menu.menu_structure: lambda m, a: json.dumps(m.menu_structure, ensure_ascii=False, indent=2),
+        Menu.menu_meta: lambda m, a: json.dumps(
+            m.menu_meta, ensure_ascii=False, indent=2
+        ),
+        Menu.calorie_target: lambda m, a: json.dumps(
+            m.calorie_target, ensure_ascii=False, indent=2
+        ),
+        Menu.menu_structure: lambda m, a: json.dumps(
+            m.menu_structure, ensure_ascii=False, indent=2
+        ),
     }
 
 

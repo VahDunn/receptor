@@ -41,5 +41,25 @@ services:
     ports:
       - "8000:8000"
 
+  bot:
+    build: .
+    container_name: receptor_bot
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      APP_ENV: ${APP_ENV}
+      DEBUG: ${DEBUG}
+      CHAD_API_KEY: ${CHAD_API_KEY}
+      CHAD_URL: ${CHAD_URL}
+      YOOKASSA_SHOP_ID: ${YOOKASSA_SHOP_ID}
+      YOOKASSA_SECRET_KEY: ${YOOKASSA_SECRET_KEY}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+    command: python -m receptor.telegram_bot.bot
+
 volumes:
   db_data:

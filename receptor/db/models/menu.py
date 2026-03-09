@@ -8,8 +8,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from receptor.db.models.base import BaseORM
 
 if TYPE_CHECKING:
-    from receptor.db.models.user.user import User
     from receptor.db.models import Product
+    from receptor.db.models.user.user import User
 
 
 class Menu(BaseORM):
@@ -26,7 +26,7 @@ class Menu(BaseORM):
         back_populates="menus",
     )
 
-    meta: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    menu_meta: Mapped[dict] = mapped_column(JSONB, nullable=False)
     calorie_target: Mapped[dict] = mapped_column(JSONB, nullable=False)
 
     max_money_rub: Mapped[int] = mapped_column(sa.Integer, nullable=False)
@@ -65,7 +65,9 @@ class MenuProduct(BaseORM):
     unit: Mapped[str] = mapped_column(sa.String(8), nullable=False)
     quantity: Mapped[Decimal] = mapped_column(sa.Numeric(10, 3), nullable=False)
 
-    menu: Mapped["Menu"] = relationship("Menu", back_populates="products_with_quantities")
+    menu: Mapped["Menu"] = relationship(
+        "Menu", back_populates="products_with_quantities"
+    )
     product: Mapped["Product"] = relationship("Product")
 
     __table_args__ = (

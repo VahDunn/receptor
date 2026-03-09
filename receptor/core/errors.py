@@ -14,9 +14,13 @@ class ConflictError(ServiceError):
     """Конфликт данных."""
 
 
-class DatabaseError(Exception):
-    """Ошибка в базе данных"""
+class DatabaseError(ServiceError):
+    """Ошибка базы данных."""
 
 
-class AiResponseParseError(ValueError):
+class InsufficientFundsError(ServiceError):
+    """Недостаточно средств."""
+
+
+class AiResponseParseError(ServiceError):
     """LLM вернул невалидный/неожиданный формат."""

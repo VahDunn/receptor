@@ -1,11 +1,11 @@
 from typing import Sequence
 
 import sqlalchemy as sa
-
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from receptor.db.models import Menu, MenuProduct
+
 
 class MenuRepository:
     def __init__(self, db: AsyncSession):
@@ -35,8 +35,26 @@ class MenuRepository:
             .where(Menu.user_id == user_id)
             .order_by(Menu.created_at.desc(), Menu.id.desc())
             .options(
-                selectinload(Menu.products_with_quantities).selectinload(MenuProduct.product)
+                selectinload(Menu.products_with_quantities).selectinload(
+                    MenuProduct.product
+                )
             )
         )
         res = await self.db.execute(stmt)
         return list(res.scalars().all())
+
+    async def get_by_id_for_user(self, user_id: int, menu_id: int) -> Menu | None:
+        stmt = (
+            sa.select(Menu)
+            .where(
+                Menu.id == menu_id,
+                Menu.user_id == user_id,
+            )
+            .options(
+                selectinload(Menu.products_with_quantities).selectinload(
+                    MenuProduct.product
+                )
+            )
+        )
+        res = await self.db.execute(stmt)
+        return res.scalar_one_or_none()

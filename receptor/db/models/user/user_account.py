@@ -7,7 +7,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from receptor.core.domain.account_payment.account_entry_types import AccountEntryType
-from receptor.core.domain.account_payment.payments import PaymentStatus, CurrencyCode
+from receptor.core.domain.account_payment.payments import CurrencyCode, PaymentStatus
 from receptor.db.models.base import BaseORM
 
 if TYPE_CHECKING:
@@ -86,7 +86,7 @@ class LedgerEntry(BaseORM):
     )
 
     operation_key: Mapped[str] = mapped_column(sa.String, nullable=False, unique=True)
-    meta: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    ledger_meta: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
 
     account = relationship("UserAccount", back_populates="entries")
 

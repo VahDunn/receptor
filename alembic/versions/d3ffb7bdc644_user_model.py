@@ -58,6 +58,17 @@ def upgrade() -> None:
     conn.execute(
         sa.text(
             """
+            SELECT setval(
+                           pg_get_serial_sequence('"user"', 'id'),
+                           (SELECT MAX(id) FROM "user")
+                   )
+            """
+        )
+    )
+
+    conn.execute(
+        sa.text(
+            """
             UPDATE menu
             SET user_id = 1
             WHERE user_id IS NULL OR user_id = 0
@@ -101,16 +112,16 @@ def upgrade() -> None:
         sa.Column(
             "marketplace",
             sa.Enum(
-                "Перекресток",
-                "ВкусВилл",
-                "Пятерочка",
-                "Чижик",
+                "perekrestok",
+                "vkusvill",
+                "pyaterochka",
+                "chizhik",
                 name="marketplace_enum",
                 native_enum=False,
                 create_constraint=True,
             ),
             nullable=False,
-            server_default=sa.text("'Перекресток'"),
+            server_default=sa.text("'perekrestok'"),
         ),
         sa.Column(
             "notifications_enabled",
