@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Generic, TypeVar
 
-from receptor.utils.errors import AiResponseParseError
+from receptor.core.errors import AiResponseParseError
 
 R = TypeVar("R")
 

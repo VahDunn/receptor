@@ -3,7 +3,7 @@ from http import HTTPStatus
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
-from receptor.utils.errors import (
+from receptor.core.errors import (
     ConflictError,
     EntityNotFoundError,
     ServiceError,

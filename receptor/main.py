@@ -1,37 +1,43 @@
 from contextlib import asynccontextmanager
 
-import aiohttp
+import httpx
 from fastapi import FastAPI
 
+from receptor.api.error_handlers import register_exception_handlers
 from receptor.api.router import api_router
-from receptor.config import settings
 from receptor.core.logger import setup_logging
 from receptor.db.admin import setup_admin
 from receptor.db.engine import engine
-from receptor.api.error_handlers import register_exception_handlers
-from receptor.external_services.ai.clients.chad_ai_client import ChadAIClient
 
 
 @asynccontextmanager
 async def lifespan(app_main: FastAPI):
-    # startup
     setup_logging(app_name="receptor")
-    app_main.state.http_session = aiohttp.ClientSession(
-        timeout=aiohttp.ClientTimeout(
-            total=12000,  # общий потолок
-            connect=1000,  # соединение
-            sock_connect=1000,  # коннект до сокета
-            sock_read=1100,
+
+    app_main.state.ai_http_client = httpx.AsyncClient(
+        timeout=httpx.Timeout(
+            timeout=1200.0,
+            connect=10.0,
+            read=1100.0,
+            write=30.0,
+            pool=30.0,
         )
     )
-    app_main.state.ai_client = ChadAIClient(
-        session=app_main.state.http_session,
-        api_key=settings.chad_api_key,
-        url=settings.chad_url,
+
+    app_main.state.payments_http_client = httpx.AsyncClient(
+        timeout=httpx.Timeout(
+            timeout=20.0,
+            connect=5.0,
+            read=15.0,
+            write=10.0,
+            pool=5.0,
+        )
     )
+
     yield
-    # shutdown
-    await app_main.state.http_session.close()
+
+    await app_main.state.ai_http_client.aclose()
+    await app_main.state.payments_http_client.aclose()
     await engine.dispose()
 
 
@@ -44,7 +50,6 @@ def create_app() -> FastAPI:
     setup_admin(main_app)
     register_exception_handlers(main_app)
     main_app.include_router(api_router, prefix="/api")
-
     return main_app
 
 

@@ -2,7 +2,7 @@ import json
 import logging
 from typing import Any
 
-import aiohttp
+import httpx
 
 from receptor.external_services.ai.clients.abstract_ai_client import AbstractAiClient
 
@@ -10,24 +10,27 @@ logger = logging.getLogger(__name__)
 
 
 class ChadAIClient(AbstractAiClient):
-    def __init__(self, session: aiohttp.ClientSession, api_key: str, url: str):
+    def __init__(self, client: httpx.AsyncClient, api_key: str, url: str):
         self.api_key = api_key
-        self.session = session
+        self.client = client
         self.url = url
 
     async def send_prompt(self, prompt_text: str) -> str:
-        request_json = {"message": prompt_text, "api_key": self.api_key}
+        request_json = {
+            "message": prompt_text,
+            "api_key": self.api_key,
+        }
 
         logger.info("ChadAIClient -> POST %s", self.url)
 
-        async with self.session.post(self.url, json=request_json) as resp:
-            text = await resp.text()
+        resp = await self.client.post(self.url, json=request_json)
+        text = resp.text
 
-        if resp.status != 200:
-            raise RuntimeError(f"HTTP {resp.status}: {text[:1000]}")
+        if resp.status_code != 200:
+            raise RuntimeError(f"HTTP {resp.status_code}: {text[:1000]}")
 
         try:
-            envelope: dict[str, Any] = json.loads(text)
+            envelope: dict[str, Any] = resp.json()
         except json.JSONDecodeError as e:
             raise RuntimeError(
                 f"AI returned invalid JSON envelope: {text[:1000]}"
