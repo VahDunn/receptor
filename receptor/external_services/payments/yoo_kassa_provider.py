@@ -19,7 +19,7 @@ from receptor.external_services.payments.abstract_payment_provider import (
 
 class YooKassaProvider(AbstractPaymentProvider):
 
-    DEFAULT_API_URL = "https://api.yookassa.ru/v3/payments"
+    DEFAULT_API_URL = 'localhost' #"https://api.yookassa.ru/v3/payments"
 
     def __init__(
         self,

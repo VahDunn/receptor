@@ -5,20 +5,16 @@ from fastapi import Depends
 from receptor.api.deps.ai import get_ai_client
 from receptor.api.deps.ai import get_menu_parser, get_products_parser
 from receptor.api.deps.payment import get_yookassa_provider
-from receptor.api.deps.repos import get_product_repository, get_menu_repository, get_payment_repository
-from receptor.repositories.payment_repo import PaymentRepository
-from receptor.services.menu_service import MenuService
-from receptor.services.product_service import ProductsService
-from receptor.services.payment_service import PaymentService
-from receptor.services.ai_service import AIService
+from receptor.api.deps.repos import get_product_repo, get_menu_repo, get_payment_repo, get_user_repo
+
+from receptor.services import AIService, UserService, PaymentService, ProductsService, MenuService
 
 if TYPE_CHECKING:
     from receptor.external_services.ai.parsers.default_parser import DefaultJsonAiParser
-    from receptor.repositories.product_repo import ProductRepository
-    from receptor.repositories.menu_repo import MenuRepository
-
+    from receptor.repositories import PaymentRepository, UserRepository, MenuRepository, ProductRepository
     from receptor.external_services.ai.clients.abstract_ai_client import AbstractAiClient
     from receptor.external_services.payments.abstract_payment_provider import AbstractPaymentProvider
+
 
 def get_ai_service(
     ai_client: "AbstractAiClient" = Depends(get_ai_client),
@@ -27,14 +23,14 @@ def get_ai_service(
 
 
 def get_products_service(
-    repo: "ProductRepository" = Depends(get_product_repository),
+    repo: "ProductRepository" = Depends(get_product_repo),
     ai_service: "AIService" = Depends(get_ai_service),
     parser: "DefaultJsonAiParser" = Depends(get_products_parser),
 ) -> ProductsService:
     return ProductsService(repo=repo, ai_service=ai_service, parser=parser)
 
 def get_payment_service(
-    repo: "PaymentRepository" = Depends(get_payment_repository),
+    repo: "PaymentRepository" = Depends(get_payment_repo),
     provider: "AbstractPaymentProvider" = Depends(get_yookassa_provider),
 ) -> PaymentService:
     return PaymentService(
@@ -44,7 +40,7 @@ def get_payment_service(
 
 
 def get_menu_service(
-    repo: "MenuRepository" = Depends(get_menu_repository),
+    repo: "MenuRepository" = Depends(get_menu_repo),
     products_service: "ProductsService" = Depends(get_products_service),
     ai_service: "AIService" = Depends(get_ai_service),
     payment_service: "PaymentService" = Depends(get_payment_service),
@@ -59,5 +55,7 @@ def get_menu_service(
     )
 
 
-def get_users_service():
-    pass
+def get_user_service(
+    repo: "UserRepository" = Depends(get_user_repo),
+) -> UserService:
+    return UserService(repo)

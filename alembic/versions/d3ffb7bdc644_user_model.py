@@ -27,6 +27,19 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.Column("name", sa.String(), nullable=False),
+        sa.Column("password_hash", sa.String(length=255), nullable=True),
+        sa.Column(
+            "role",
+            sa.Enum(
+                "USER",
+                "ADMIN",
+                name="user_role",
+                native_enum=False,
+                create_constraint=True,
+            ),
+            nullable=False,
+            server_default=sa.text("'USER'"),
+        ),
         sa.PrimaryKeyConstraint("id", name="pk_user"),
     )
 
@@ -35,8 +48,8 @@ def upgrade() -> None:
     conn.execute(
         sa.text(
             """
-            INSERT INTO "user" (id, name)
-            VALUES (1, 'system')
+            INSERT INTO "user" (id, name, password_hash, role)
+            VALUES (1, 'system', NULL, 'ADMIN')
             ON CONFLICT (id) DO NOTHING
             """
         )
@@ -55,12 +68,50 @@ def upgrade() -> None:
     op.create_table(
         "user_settings",
         sa.Column("user_id", sa.BigInteger(), nullable=False),
-        sa.Column("kcal_min_per_day", sa.Integer(), nullable=True),
-        sa.Column("kcal_max_per_day", sa.Integer(), nullable=True),
-        sa.Column("max_money_rub", sa.Integer(), nullable=True),
-        sa.Column("weekly_budget_tolerance_rub", sa.Integer(), nullable=True),
-        sa.Column("city", sa.String(), nullable=True),
-        sa.Column("marketplace", sa.String(), nullable=True),
+        sa.Column(
+            "kcal_min_per_day",
+            sa.Integer(),
+            nullable=False,
+            server_default=sa.text("2000"),
+        ),
+        sa.Column(
+            "kcal_max_per_day",
+            sa.Integer(),
+            nullable=False,
+            server_default=sa.text("2500"),
+        ),
+        sa.Column(
+            "max_money_rub",
+            sa.Integer(),
+            nullable=False,
+            server_default=sa.text("10000"),
+        ),
+        sa.Column(
+            "weekly_budget_tolerance_rub",
+            sa.Integer(),
+            nullable=False,
+            server_default=sa.text("1000"),
+        ),
+        sa.Column(
+            "city",
+            sa.String(),
+            nullable=False,
+            server_default=sa.text("'Москва'"),
+        ),
+        sa.Column(
+            "marketplace",
+            sa.Enum(
+                "Перекресток",
+                "ВкусВилл",
+                "Пятерочка",
+                "Чижик",
+                name="marketplace_enum",
+                native_enum=False,
+                create_constraint=True,
+            ),
+            nullable=False,
+            server_default=sa.text("'Перекресток'"),
+        ),
         sa.Column(
             "notifications_enabled",
             sa.Boolean(),
@@ -121,8 +172,45 @@ def upgrade() -> None:
         ondelete="CASCADE",
     )
 
+    op.create_table(
+        "user_identity",
+        sa.Column("user_id", sa.BigInteger(), nullable=False),
+        sa.Column("provider", sa.String(), nullable=False),
+        sa.Column("external_id", sa.String(), nullable=False),
+        sa.Column("username", sa.String(), nullable=True),
+        sa.Column("raw_meta", sa.JSON(), nullable=True),
+        sa.Column("id", sa.BigInteger(), autoincrement=True, nullable=False),
+        sa.Column(
+            "created_at",
+            sa.TIMESTAMP(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=False,
+        ),
+        sa.ForeignKeyConstraint(
+            ["user_id"],
+            ["user.id"],
+            ondelete="CASCADE",
+            name="fk_user_identity_user_id_user",
+        ),
+        sa.PrimaryKeyConstraint("id", name="pk_user_identity"),
+        sa.UniqueConstraint(
+            "provider",
+            "external_id",
+            name="uq_user_identity_provider_external_id",
+        ),
+    )
+    op.create_index(
+        "ix_user_identity_user_id",
+        "user_identity",
+        ["user_id"],
+        unique=False,
+    )
+
 
 def downgrade() -> None:
+    op.drop_index("ix_user_identity_user_id", table_name="user_identity")
+    op.drop_table("user_identity")
+
     op.drop_constraint("fk_menu_user_id_user", "menu", type_="foreignkey")
 
     op.drop_index(

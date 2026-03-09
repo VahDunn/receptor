@@ -16,6 +16,9 @@ class Settings(BaseSettings):
     database_url: str = Field(..., alias="DATABASE_URL")
     chad_api_key: str = Field(..., alias="CHAD_API_KEY")
     chad_url: str = Field(..., alias="CHAD_URL")
+    yookassa_shop_id: str = Field(..., alias="YOOKASSA_SHOP_ID")
+    yookassa_secret_key: str = Field(..., alias="YOOKASSA_SECRET_KEY")
+    telegram_bot_token: str = Field(..., alias="TELEGRAM_BOT_TOKEN")
     model_config = {
         "env_file": str(ENV_FILE),
         "env_file_encoding": "utf-8",

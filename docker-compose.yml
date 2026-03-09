@@ -34,6 +34,9 @@ services:
       DEBUG: ${DEBUG}
       CHAD_API_KEY: ${CHAD_API_KEY}
       CHAD_URL: ${CHAD_URL}
+      YOOKASSA_SHOP_ID: ${YOOKASSA_SHOP_ID}
+      YOOKASSA_SECRET_KEY: ${YOOKASSA_SECRET_KEY}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
     command: uvicorn receptor.main:app --host 0.0.0.0 --port 8000
     ports:
       - "8000:8000"

@@ -8,7 +8,7 @@ from receptor.external_services.ai.clients.abstract_ai_client import AbstractAiC
 from receptor.external_services.ai.clients.chad_ai_client import ChadAIClient
 from receptor.external_services.ai.parsers.default_parser import DefaultJsonAiParser
 from receptor.external_services.ai.response_schemas.ai_products_schema import (
-    ProductsResponseSchema,
+    ProductsAiResponseSchema,
 )
 from receptor.external_services.ai.response_schemas.ai_menu_schema import (
     WeeklyMenuAiResponseSchema,
@@ -24,9 +24,9 @@ def get_ai_client(
         url=settings.chad_url,
     )
 
-def get_products_parser() -> DefaultJsonAiParser[ProductsResponseSchema]:
+def get_products_parser() -> DefaultJsonAiParser[ProductsAiResponseSchema]:
     return DefaultJsonAiParser(
-        schema=ProductsResponseSchema,
+        schema=ProductsAiResponseSchema,
         strict_json_only=True,
     )
 

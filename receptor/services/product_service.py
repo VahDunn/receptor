@@ -4,7 +4,7 @@ from receptor.core.domain.marketplaces import Marketplace
 from receptor.db.models import Product
 from receptor.external_services.ai.prompts.products_prompt import build_products_prompt
 from receptor.external_services.ai.response_schemas.ai_products_schema import (
-    ProductsResponseSchema,
+    ProductsAiResponseSchema,
     ProductItemSchema,
 )
 from receptor.repositories.product_repo import ProductRepository
@@ -40,7 +40,7 @@ class ProductsService:
             response_fields=RESPONSE_FIELDS,
         )
 
-        ai_response: ProductsResponseSchema = await self.ai_service.get(
+        ai_response: ProductsAiResponseSchema = await self.ai_service.get(
             prompt,
             parser=self._parser,
         )

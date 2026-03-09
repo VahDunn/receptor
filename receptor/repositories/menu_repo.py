@@ -6,8 +6,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from receptor.db.models import Menu, MenuProduct
-from receptor.core.errors import DatabaseError
-
 
 class MenuRepository:
     def __init__(self, db: AsyncSession):

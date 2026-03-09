@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING
 
+from receptor.core.domain.marketplaces import Marketplace
 from receptor.db.models.base import Base
 import sqlalchemy as sa
 from sqlalchemy.orm import relationship, Mapped, mapped_column
@@ -16,14 +17,47 @@ class UserSettings(Base):
         primary_key=True,
     )
 
-    kcal_min_per_day: Mapped[int | None] = mapped_column(sa.Integer, nullable=True)
-    kcal_max_per_day: Mapped[int | None] = mapped_column(sa.Integer, nullable=True)
+    kcal_min_per_day: Mapped[int] = mapped_column(
+        sa.Integer,
+        nullable=False,
+        server_default=sa.text("2000"),
+    )
 
-    max_money_rub: Mapped[int | None] = mapped_column(sa.Integer, nullable=True)
-    weekly_budget_tolerance_rub: Mapped[int | None] = mapped_column(sa.Integer, nullable=True)
+    kcal_max_per_day: Mapped[int] = mapped_column(
+        sa.Integer,
+        nullable=False,
+        server_default=sa.text("2500"),
+    )
 
-    city: Mapped[str | None] = mapped_column(sa.String, nullable=True)
-    marketplace: Mapped[str | None] = mapped_column(sa.String, nullable=True)
+    max_money_rub: Mapped[int] = mapped_column(
+        sa.Integer,
+        nullable=False,
+        server_default=sa.text("10000"),
+    )
+
+    weekly_budget_tolerance_rub: Mapped[int] = mapped_column(
+        sa.Integer,
+        nullable=False,
+        server_default=sa.text("1000"),
+    )
+
+    city: Mapped[str] = mapped_column(
+        sa.String,
+        nullable=False,
+        server_default=sa.text("'Москва'"),
+    )
+
+    marketplace: Mapped[Marketplace] = mapped_column(
+        sa.Enum(
+            Marketplace,
+            name="marketplace_enum",
+            native_enum=False,
+            create_constraint=True,
+            validate_strings=True,
+        ),
+        nullable=False,
+        server_default=sa.text("'Перекресток'"),
+    )
 
     notifications_enabled: Mapped[bool] = mapped_column(
         sa.Boolean,
@@ -31,4 +65,7 @@ class UserSettings(Base):
         server_default=sa.true(),
     )
 
-    user: Mapped["User"] = relationship("User", back_populates="settings")
+    user: Mapped["User"] = relationship(
+        "User",
+        back_populates="settings",
+    )

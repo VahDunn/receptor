@@ -68,7 +68,7 @@ class ProductItemSchema(BaseModel):
         return v
 
 
-class ProductsResponseSchema(BaseModel):
+class ProductsAiResponseSchema(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     meta: ProductsMetaSchema
