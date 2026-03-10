@@ -3,8 +3,8 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from receptor.api.schemas.product import ProductOut
 from receptor.core.domain.marketplaces import Marketplace
+from receptor.schemas.product import ProductOut
 
 
 class MenuCreateParams(BaseModel):

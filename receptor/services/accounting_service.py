@@ -12,7 +12,7 @@ from receptor.core.domain.account_payment.payments import (
     WebhookEventType,
 )
 from receptor.core.domain.account_payment.pricing import PricingMinor
-from receptor.core.errors import DatabaseError
+from receptor.core.errors import DatabaseError, InsufficientFundsError
 from receptor.db.models.user.user_account import (
     AccountPayment,
     LedgerEntry,
@@ -28,7 +28,7 @@ from receptor.external_services.payments.abstract_payment_provider import (
 from receptor.repositories.payment_repo import PaymentRepository
 
 
-class PaymentService:
+class AccountingService:
     def __init__(
         self,
         provider: AbstractPaymentProvider,
@@ -119,7 +119,8 @@ class PaymentService:
             )
             if not payment:
                 raise DatabaseError(
-                    f"Payment {self._provider.name}:{event.provider_payment_id} not found"
+                    f"Payment {self._provider.name}:"
+                    f"{event.provider_payment_id} not found"
                 )
 
             await self._repo.update_payment_status(
@@ -164,7 +165,8 @@ class PaymentService:
         )
         if not refreshed:
             raise DatabaseError(
-                f"Payment {self._provider.name}:{event.provider_payment_id} not found after webhook"
+                f"Payment {self._provider.name}:{event.provider_payment_id}"
+                f" not found after webhook"
             )
         return refreshed
 
@@ -189,7 +191,7 @@ class PaymentService:
             currency=currency,
         )
         if account.balance_minor < amount_minor:
-            raise DatabaseError("Insufficient funds")
+            raise InsufficientFundsError("Insufficient funds to make a payment")
 
         account.balance_minor -= amount_minor
 

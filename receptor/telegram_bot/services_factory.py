@@ -4,12 +4,29 @@ from receptor.config import settings
 from receptor.db.engine import engine
 from receptor.external_services.ai.clients.chad_ai_client import ChadAIClient
 from receptor.external_services.ai.parsers.default_parser import DefaultJsonAiParser
-from receptor.external_services.ai.response_schemas.ai_menu_schema import WeeklyMenuAiResponseSchema
-from receptor.external_services.ai.response_schemas.ai_products_schema import ProductsAiResponseSchema
-from receptor.repositories import UserRepository, MenuRepository, PaymentRepository, ProductRepository
-from receptor.services import UserService, MenuService, PaymentService, AIService, ProductsService
+from receptor.external_services.ai.response_schemas.ai_menu_schema import (
+    WeeklyMenuAiResponseSchema,
+)
+from receptor.external_services.ai.response_schemas.ai_products_schema import (
+    ProductsAiResponseSchema,
+)
 from receptor.external_services.payments.yoo_kassa_provider import YooKassaProvider
+from receptor.repositories import (
+    MenuRepository,
+    PaymentRepository,
+    ProductRepository,
+    UserRepository,
+)
+from receptor.repositories.user_settings_repo import UserSettingsRepository
+from receptor.services import (
+    AccountingService,
+    AIService,
+    MenuService,
+    ProductsService,
+    UserService,
+)
 from receptor.services.menu_pdf_service import MenuPdfService
+from receptor.services.user_settings_service import UserSettingsService
 
 session_factory = async_sessionmaker(
     bind=engine,
@@ -25,12 +42,13 @@ async def build_services(
     AsyncSession,
     UserService,
     MenuService,
-    PaymentService,
+    AccountingService,
     MenuPdfService,
 ]:
     session: AsyncSession = session_factory()
 
     user_repo = UserRepository(session)
+    user_settings_repo = UserSettingsRepository(session)
     product_repo = ProductRepository(session)
     menu_repo = MenuRepository(session)
     payment_repo = PaymentRepository(session)
@@ -51,8 +69,12 @@ async def build_services(
     )
 
     ai_service = AIService(ai_client)
-    user_service = UserService(user_repo)
-    payment_service = PaymentService(
+    user_settings_service = UserSettingsService(user_settings_repo)
+    user_service = UserService(
+        user_repo,
+        user_settings_service,
+    )
+    payment_service = AccountingService(
         provider=payment_provider,
         repo=payment_repo,
     )

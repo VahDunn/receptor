@@ -1,5 +1,3 @@
-import logging
-
 from aiogram import F, Router
 from aiogram.filters import Command
 from aiogram.types import (
@@ -10,16 +8,15 @@ from aiogram.types import (
     Message,
 )
 
-from receptor.api.schemas.menu import MenuCreateParams
 from receptor.core.errors import DatabaseError, EntityNotFoundError
 from receptor.db.models.user.user import User
+from receptor.schemas.menu import MenuCreateParams
 from receptor.services.menu_pdf_service import MenuPdfService
 from receptor.services.menu_service import MenuService
 from receptor.services.user_service import UserService
 from receptor.telegram_bot.keyboards.main import main_keyboard
 from receptor.telegram_bot.keyboards.menu import menu_keyboard
 
-logger = logging.getLogger(__name__)
 router = Router()
 
 
@@ -40,7 +37,7 @@ def build_menu_item_keyboard(menu_id: int) -> InlineKeyboardMarkup:
 @router.message(F.text == "🍽 Меню")
 async def open_menu_section(message: Message, user: User) -> None:
     await message.answer(
-        "Раздел меню",
+        "Раздел меню.",
         reply_markup=menu_keyboard,
     )
 
@@ -70,9 +67,6 @@ async def generate_menu(
     except DatabaseError as e:
         await message.answer(f"Не удалось создать меню: {e}")
         return
-    except Exception:
-        await message.answer("Не удалось создать меню из-за внутренней ошибки.")
-        raise
 
     await message.answer(
         "Меню успешно создано ✅\n"
@@ -92,10 +86,10 @@ async def my_menus(
     menus = await menu_service.get(user.id)
 
     if not menus:
-        await message.answer("У тебя пока нет меню.")
+        await message.answer("У Вас пока нет меню.")
         return
 
-    await message.answer("Твои меню:")
+    await message.answer("Ваши меню:")
 
     for menu in menus[:10]:
         await message.answer(
@@ -120,7 +114,7 @@ async def send_menu_pdf(
         menu_id = int(callback.data.split(":")[-1])
     except (TypeError, ValueError):
         if callback.message is not None:
-            await callback.message.answer("Некорректный ID меню")
+            await callback.message.answer("Некорректный ID меню.")
         return
 
     try:
@@ -130,7 +124,7 @@ async def send_menu_pdf(
         )
     except EntityNotFoundError:
         if callback.message is not None:
-            await callback.message.answer("Меню не найдено")
+            await callback.message.answer("Меню не найдено.")
         return
 
     pdf_bytes = menu_pdf_service.build_pdf(menu)
@@ -146,19 +140,9 @@ async def send_menu_pdf(
         )
 
 
-@router.message(F.text == "⬅ Назад")
+@router.message(F.text == "⬅️ На главную")
 async def back_to_main(message: Message, user: User) -> None:
     await message.answer(
-        "Главное меню",
+        "Главное меню.",
         reply_markup=main_keyboard,
     )
-
-
-@router.message()
-async def debug_unhandled_message(message: Message) -> None:
-    logger.info(
-        "UNHANDLED MESSAGE text=%r user_id=%s",
-        message.text,
-        message.from_user.id if message.from_user else None,
-    )
-    await message.answer(f"Неизвестная команда: {message.text!r}")

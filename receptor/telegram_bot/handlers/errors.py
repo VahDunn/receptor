@@ -11,7 +11,6 @@ from receptor.core.errors import (
 )
 
 logger = logging.getLogger(__name__)
-
 router = Router()
 
 
@@ -20,32 +19,34 @@ async def errors_handler(event: ErrorEvent) -> bool:
     error = event.exception
     update = event.update
 
-    logger.exception("Telegram bot error: %s", error)
+    message = update.message
+    callback = update.callback_query
+    target_message = message or (callback.message if callback else None)
 
-    message = None
-    if update.message:
-        message = update.message
-    elif update.callback_query:
-        message = update.callback_query.message
+    if callback:
+        try:
+            await callback.answer()
+        except Exception:
+            pass
 
-    if message is None:
-        return True
+    match error:
+        case InsufficientFundsError():
+            text = "Недостаточно средств для выполнения операции."
 
-    if isinstance(error, InsufficientFundsError):
-        await message.answer("Недостаточно средств для выполнения операции.")
-        return True
+        case ValidationError():
+            text = f"Некорректные данные: {error}"
 
-    if isinstance(error, ValidationError):
-        await message.answer(f"Некорректные данные: {error}")
-        return True
+        case EntityNotFoundError():
+            text = "Не удалось найти запрошенные данные."
 
-    if isinstance(error, EntityNotFoundError):
-        await message.answer("Нужные данные не найдены.")
-        return True
+        case ServiceError():
+            text = f"Не удалось выполнить команду: {error}"
 
-    if isinstance(error, ServiceError):
-        await message.answer(f"Не удалось выполнить команду: {error}")
-        return True
+        case _:
+            logger.exception("Unhandled telegram bot error")
+            text = "Произошла внутренняя ошибка. Пожалуйста, попробуйте позже."
 
-    await message.answer("Произошла внутренняя ошибка. Попробуй ещё раз позже.")
+    if target_message:
+        await target_message.answer(text)
+
     return True
