@@ -1,9 +1,8 @@
 import json
 
+from receptor.core.domain.marketplaces import Marketplace
 from receptor.core.domain.product_categories import ProductTypeCode
 from receptor.core.domain.units import UNITS
-from receptor.core.domain.marketplaces import Marketplace
-
 
 PRODUCTS_PROMPT_TEMPLATE = """
 Жёсткие правила:
@@ -18,7 +17,7 @@ PRODUCTS_PROMPT_TEMPLATE = """
 - Не дублируй одинаковые товары в разных фасовках без необходимости.
 - Избегай брендов, используй обобщённые названия.
 
-Сформируй каталог продуктов для кэширования цен для магазина "__MARKETPLACE__", город Москва.
+Сформируй каталог продуктов для кэширования цен для магазина "__MARKETPLACE__", регион Москва.
 
 Категории (строго из списка): __CATEGORIES_JSON__
 Поле unit (строго из списка): __UNITS_JSON__
@@ -52,7 +51,7 @@ def build_products_prompt(
     response_format = {
         "meta": {
             "store": marketplace.value,
-            "city": "Москва",
+            "region": "Москва",
             "catalog_size": positions_number,
             "created_at": None,
             "version": None,

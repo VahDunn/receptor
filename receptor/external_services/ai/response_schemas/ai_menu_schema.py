@@ -1,14 +1,13 @@
-from __future__ import annotations
-
 from decimal import Decimal
-from receptor.core.domain.units import Unit
 
 from pydantic import BaseModel, Field, ValidationInfo, field_validator, model_validator
+
+from receptor.core.domain.units import Unit
 
 
 class MenuMetaSchema(BaseModel):
     store: str
-    city: str
+    region: str
     version: str | None = None
 
 
@@ -35,7 +34,9 @@ class DishSchema(BaseModel):
         if not (2 <= len(v) <= 5):
             raise ValueError("dish.products must contain 2..5 items")
         if any(pid <= 0 for pid in v):
-            raise ValueError("dish.products must contain positive integers (product_id)")
+            raise ValueError(
+                "dish.products must contain positive integers (product_id)"
+            )
         if len(v) != len(set(v)):
             raise ValueError("dish.products must be unique within a dish")
         return v
@@ -140,18 +141,24 @@ class WeeklyMenuAiResponseSchema(BaseModel):
             missing_qty = ids_in_menu - ids_in_qty
 
         if missing_qty:
-            raise ValueError(f"products_with_quantities missing product_id(s): {sorted(missing_qty)}")
+            raise ValueError(
+                f"products_with_quantities missing product_id(s): {sorted(missing_qty)}"
+            )
 
         extra_qty = ids_in_qty - ids_in_menu
         if extra_qty:
-            raise ValueError(f"products_with_quantities has unused product_id(s): {sorted(extra_qty)}")
+            raise ValueError(
+                f"products_with_quantities has unused product_id(s): {sorted(extra_qty)}"
+            )
 
         allowed_ids = ctx.get("allowed_product_ids")
         if allowed_ids is not None:
             allowed_set = set(allowed_ids)
             unknown = (ids_in_menu | ids_in_qty) - allowed_set
             if unknown:
-                raise ValueError(f"AI returned product_id(s) not present in input list: {sorted(unknown)}")
+                raise ValueError(
+                    f"AI returned product_id(s) not present in input list: {sorted(unknown)}"
+                )
 
         if unit_by_id is not None:
             mismatched = []
@@ -160,7 +167,9 @@ class WeeklyMenuAiResponseSchema(BaseModel):
                 if expected is not None and pq.unit != expected:
                     mismatched.append((pq.product_id, expected, pq.unit))
             if mismatched:
-                msg = ", ".join(f"{pid} expected {exp} got {got}" for pid, exp, got in mismatched)
+                msg = ", ".join(
+                    f"{pid} expected {exp} got {got}" for pid, exp, got in mismatched
+                )
                 raise ValueError(f"Unit mismatch for product_id(s): {msg}")
 
         weekly_budget = ctx.get("weekly_budget_rub")

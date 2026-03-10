@@ -1,9 +1,10 @@
 from typing import TYPE_CHECKING
 
+import sqlalchemy as sa
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from receptor.core.domain.marketplaces import Marketplace
 from receptor.db.models.base import Base
-import sqlalchemy as sa
-from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 if TYPE_CHECKING:
     from receptor.db.models.user.user import User
@@ -41,7 +42,7 @@ class UserSettings(Base):
         server_default=sa.text("1000"),
     )
 
-    city: Mapped[str] = mapped_column(
+    region: Mapped[str] = mapped_column(
         sa.String,
         nullable=False,
         server_default=sa.text("'Москва'"),

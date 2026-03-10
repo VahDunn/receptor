@@ -50,8 +50,8 @@ async def create_telegram_user(
     if existing:
         return existing
 
-    user = await user_service.create(
-        name=build_telegram_display_name(
+    user = await user_service.create_telegram_user(
+        username=build_telegram_display_name(
             username=username,
             first_name=first_name,
             last_name=last_name,
@@ -59,17 +59,7 @@ async def create_telegram_user(
         ),
         role=UserRole.USER,
         password_hash=None,
-    )
-
-    await user_service.attach_identity(
-        user_id=user.id,
-        provider=UserProvider.telegram,
-        external_id=str(telegram_user_id),
-        username=username,
-        raw_meta={
-            "first_name": first_name,
-            "last_name": last_name,
-        },
+        tg_id=telegram_user_id,
     )
 
     return await user_service.get_by_id(user.id)

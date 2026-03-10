@@ -1,7 +1,7 @@
-from fastapi import APIRouter, status, Depends, Query
+from fastapi import APIRouter, Depends, Query, status
 
-from receptor.api.schemas.product import ProductOut, ProductCreateParams
 from receptor.api.deps.services import get_products_service
+from receptor.schemas.product import ProductCreateParams, ProductOut
 from receptor.services.product_service import ProductsService
 
 router = APIRouter()

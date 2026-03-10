@@ -68,7 +68,7 @@ MENU_FROM_PRODUCTS_PROMPT_TEMPLATE = """
 {
   "meta": {
     "store": "__STORE__",
-    "city": "__CITY__",
+    "region": "__REGION__",
     "version": null
   },
   "calorie_target": {
@@ -113,7 +113,7 @@ def build_menu_prompt(
     marketplace: Marketplace,
     max_money_rub: int,
     money_tolerance_rub: int,
-    city: str = "Москва"
+    region: str = "Москва",
 ) -> str:
     return (
         MENU_FROM_PRODUCTS_PROMPT_TEMPLATE.replace(
@@ -125,5 +125,5 @@ def build_menu_prompt(
         .replace("__MAX_KCAL__", str(max_kcal))
         .replace("__MAX_MONEY__", str(max_money_rub))
         .replace("__MONEY_TOLERANCE__", str(money_tolerance_rub))
-        .replace("__CITY__", city)
+        .replace("__REGION__", region)
     )

@@ -109,14 +109,14 @@ class UserSettingsAdmin(ModelView, model=UserSettings):
         UserSettings.kcal_max_per_day,
         UserSettings.max_money_rub,
         UserSettings.weekly_budget_tolerance_rub,
-        UserSettings.city,
+        UserSettings.region,
         UserSettings.marketplace,
         UserSettings.notifications_enabled,
         UserSettings.user,
     ]
     column_searchable_list = [
         UserSettings.user_id,
-        UserSettings.city,
+        UserSettings.region,
         UserSettings.marketplace,
     ]
     column_sortable_list = [
@@ -125,7 +125,7 @@ class UserSettingsAdmin(ModelView, model=UserSettings):
         UserSettings.kcal_max_per_day,
         UserSettings.max_money_rub,
         UserSettings.weekly_budget_tolerance_rub,
-        UserSettings.city,
+        UserSettings.region,
         UserSettings.marketplace,
         UserSettings.notifications_enabled,
     ]

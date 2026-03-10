@@ -16,7 +16,7 @@ class ProductsMetaSchema(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     store: str
-    city: str
+    region: str
     catalog_size: int
     created_at: datetime | None = None
     version: str | None = None

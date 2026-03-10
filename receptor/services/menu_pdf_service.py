@@ -10,7 +10,7 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
-from receptor.api.schemas.menu import MenuOut
+from receptor.schemas.menu import MenuOut
 
 
 class MenuPdfService:

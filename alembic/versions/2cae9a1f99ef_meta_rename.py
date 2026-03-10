@@ -19,8 +19,10 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     op.alter_column("account_entry", "meta", new_column_name="ledger_meta")
     op.alter_column("menu", "meta", new_column_name="menu_meta")
+    op.alter_column("user_settings", "city", new_column_name="region")
 
 
 def downgrade() -> None:
+    op.alter_column("user_settings", "region", new_column_name="city")
     op.alter_column("menu", "menu_meta", new_column_name="meta")
     op.alter_column("account_entry", "ledger_meta", new_column_name="meta")

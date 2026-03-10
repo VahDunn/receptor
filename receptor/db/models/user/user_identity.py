@@ -26,8 +26,12 @@ class UserIdentity(BaseORM):
     username: Mapped[str | None] = mapped_column(sa.String, nullable=True)
     raw_meta: Mapped[dict | None] = mapped_column(sa.JSON, nullable=True)
 
-    user: Mapped["User"] = relationship("User", back_populates="identities")
+    user: Mapped[User] = relationship("User", back_populates="identities")
 
     __table_args__ = (
-        sa.UniqueConstraint("provider", "external_id", name="uq_user_identity_provider_external_id"),
+        sa.UniqueConstraint(
+            "provider",
+            "external_id",
+            name="uq_user_identity_provider_external_id",
+        ),
     )

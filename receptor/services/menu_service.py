@@ -2,7 +2,6 @@ import json
 from dataclasses import replace
 from typing import TYPE_CHECKING, Sequence
 
-from receptor.api.schemas.menu import MenuCreateParams, MenuOut
 from receptor.core.domain.account_payment.account_entry_meta_kind import (
     AccountEntryMetaKind,
 )
@@ -20,8 +19,9 @@ from receptor.external_services.ai.response_schemas.ai_menu_schema import (
     WeeklyMenuAiResponseSchema,
 )
 from receptor.repositories.menu_repo import MenuRepository
+from receptor.schemas.menu import MenuCreateParams, MenuOut
+from receptor.services.accounting_service import AccountingService
 from receptor.services.ai_service import AIService
-from receptor.services.payment_service import PaymentService
 from receptor.services.product_service import ProductsService
 
 if TYPE_CHECKING:
@@ -35,7 +35,7 @@ class MenuService:
         ai_service: AIService,
         parser: DefaultJsonAiParser[WeeklyMenuAiResponseSchema],
         repo: MenuRepository,
-        payment_service: PaymentService,
+        payment_service: AccountingService,
     ):
         self._products_service = products_service
         self._ai_service = ai_service
@@ -49,7 +49,7 @@ class MenuService:
             payload.user_id, PricingMinor.menu_ru
         ):
             raise InsufficientFundsError(
-                f"Not enough funds available for {payload.user_id}"
+                f"Not enough funds available for user with ID {payload.user_id}"
             )
         products: Sequence[Product] = await self._products_service.get(
             marketplace=payload.marketplace,
