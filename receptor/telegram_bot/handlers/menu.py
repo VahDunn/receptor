@@ -11,9 +11,9 @@ from aiogram.types import (
 from receptor.core.errors import DatabaseError, EntityNotFoundError
 from receptor.db.models.user.user import User
 from receptor.schemas.menu import MenuCreateParams
-from receptor.services.menu_pdf_service import MenuPdfService
-from receptor.services.menu_service import MenuService
-from receptor.services.user_service import UserService
+from receptor.services.menu.menu_pdf_service import MenuPdfService
+from receptor.services.menu.menu_service import MenuService
+from receptor.services.user.user_service import UserService
 from receptor.telegram_bot.keyboards.main import main_keyboard
 from receptor.telegram_bot.keyboards.menu import menu_keyboard
 

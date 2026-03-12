@@ -1,6 +1,7 @@
 import json
+from collections.abc import Sequence
 from dataclasses import replace
-from typing import TYPE_CHECKING, Sequence
+from typing import TYPE_CHECKING
 
 from receptor.core.domain.account_payment.account_entry_meta_kind import (
     AccountEntryMetaKind,
@@ -22,7 +23,7 @@ from receptor.repositories.menu_repo import MenuRepository
 from receptor.schemas.menu import MenuCreateParams, MenuOut
 from receptor.services.accounting_service import AccountingService
 from receptor.services.ai_service import AIService
-from receptor.services.product_service import ProductsService
+from receptor.services.menu.product_service import ProductsService
 
 if TYPE_CHECKING:
     from receptor.db.models import Product

@@ -1,8 +1,14 @@
-from typing import Sequence
-from sqlalchemy.ext.asyncio import AsyncSession
+from collections.abc import Sequence
+from typing import TYPE_CHECKING
+
 import sqlalchemy as sa
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from receptor.db.models import Product
+from receptor.db.models.user.user import user_excluded_product
+
+if TYPE_CHECKING:
+    from receptor.services.dto.menu.product import ProductFilterDTO
 
 
 class ProductRepository:
@@ -17,19 +23,47 @@ class ProductRepository:
 
     async def get(
         self,
-        marketplace: str | None = None,
-        exclude_ids: Sequence[int] | None = None,
-    ) -> Sequence[Product]:
+        *,
+        filters: "ProductFilterDTO",
+    ) -> list[Product]:
         stmt = sa.select(Product)
 
-        if marketplace is not None:
-            stmt = stmt.where(Product.marketplace == marketplace)
+        conditions: list[sa.ColumnElement[bool]] = []
 
-        if exclude_ids:
-            stmt = stmt.where(Product.id.notin_(exclude_ids))
+        simple_filters = (
+            ("category", Product.type_code),
+            ("marketplace", Product.marketplace),
+            # ("region", Product.region), TODO добавить место под регионы
+        )
+
+        for attr, column in simple_filters:
+            value = getattr(filters, attr)
+            if value is not None:
+                conditions.append(column == value)
+
+        if filters.query:
+            conditions.append(Product.name.ilike(f"%{filters.query}%"))
+
+        if filters.ids:
+            conditions.append(Product.id.in_(filters.ids))
+
+        if filters.excluded_by_user_id is not None:
+            conditions.append(
+                ~sa.exists(
+                    sa.select(1).where(
+                        (user_excluded_product.c.user_id == filters.excluded_by_user_id)
+                        & (user_excluded_product.c.product_id == Product.id)
+                    )
+                )
+            )
+
+        if conditions:
+            stmt = stmt.where(*conditions)
+
+        stmt = stmt.order_by(Product.name).limit(filters.limit).offset(filters.offset)
 
         result = await self.db.execute(stmt)
-        return result.scalars().all()
+        return list(result.scalars().all())
 
     async def get_by_id(self, product_id: int) -> Product | None:
         return await self.db.get(Product, product_id)

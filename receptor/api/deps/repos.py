@@ -2,7 +2,12 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from receptor.api.deps.db import get_db
-from receptor.repositories import UserRepository, ProductRepository, MenuRepository, PaymentRepository
+from receptor.repositories import (
+    MenuRepository,
+    PaymentRepository,
+    ProductRepository,
+    UserRepository,
+)
 
 
 def get_user_repo(

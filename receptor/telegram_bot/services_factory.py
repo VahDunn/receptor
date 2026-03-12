@@ -25,8 +25,8 @@ from receptor.services import (
     ProductsService,
     UserService,
 )
-from receptor.services.menu_pdf_service import MenuPdfService
-from receptor.services.user_settings_service import UserSettingsService
+from receptor.services.menu.menu_pdf_service import MenuPdfService
+from receptor.services.user.user_settings_service import UserSettingsService
 
 session_factory = async_sessionmaker(
     bind=engine,

@@ -5,7 +5,7 @@ from receptor.core.errors import DatabaseError
 from receptor.db.models import User, UserAccount, UserIdentity, UserSettings
 from receptor.repositories.user_repo import UserRepository
 from receptor.schemas.user_settings import UserSettingsPatchSchema
-from receptor.services.user_settings_service import UserSettingsService
+from receptor.services.user.user_settings_service import UserSettingsService
 
 
 class UserService:

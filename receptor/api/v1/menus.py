@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status
 
 from receptor.api.deps.services import get_menu_service
 from receptor.schemas.menu import MenuCreateParams, MenuOut
-from receptor.services.menu_service import MenuService
+from receptor.services.menu.menu_service import MenuService
 
 router = APIRouter(tags=["menus"])
 

@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING, TypeVar
 
 from receptor.external_services.ai.parsers.abstract_parser import AbstractAiParser
 
-
 if TYPE_CHECKING:
     from receptor.external_services.ai.clients.abstract_ai_client import (
         AbstractAiClient,

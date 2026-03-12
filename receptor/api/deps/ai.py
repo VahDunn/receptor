@@ -1,17 +1,16 @@
-from fastapi import Depends
-
 import httpx
+from fastapi import Depends
 
 from receptor.api.deps.http_client import get_ai_http_client
 from receptor.config import settings
 from receptor.external_services.ai.clients.abstract_ai_client import AbstractAiClient
 from receptor.external_services.ai.clients.chad_ai_client import ChadAIClient
 from receptor.external_services.ai.parsers.default_parser import DefaultJsonAiParser
-from receptor.external_services.ai.response_schemas.ai_products_schema import (
-    ProductsAiResponseSchema,
-)
 from receptor.external_services.ai.response_schemas.ai_menu_schema import (
     WeeklyMenuAiResponseSchema,
+)
+from receptor.external_services.ai.response_schemas.ai_products_schema import (
+    ProductsAiResponseSchema,
 )
 
 

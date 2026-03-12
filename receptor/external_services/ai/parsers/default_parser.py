@@ -1,15 +1,16 @@
 from __future__ import annotations
 
+import json
+from collections.abc import Mapping
 from dataclasses import dataclass
 from decimal import Decimal
-import json
-from typing import Any, Generic, Mapping, Type, TypeVar
+from typing import Any, Generic, TypeVar
 
-from pydantic import BaseModel, ValidationError as PydanticValidationError
+from pydantic import BaseModel
+from pydantic import ValidationError as PydanticValidationError
 
-from receptor.external_services.ai.parsers.abstract_parser import AbstractAiParser
 from receptor.core.errors import AiResponseParseError
-
+from receptor.external_services.ai.parsers.abstract_parser import AbstractAiParser
 
 T = TypeVar("T", bound=BaseModel)
 
@@ -49,7 +50,7 @@ def sanitize_products_with_quantities(data: Any) -> Any:
 
 @dataclass(frozen=True)
 class DefaultJsonAiParser(AbstractAiParser[T], Generic[T]):
-    schema: Type[T]
+    schema: type[T]
     strict_json_only: bool = True
     context: Mapping[str, Any] | None = None
 

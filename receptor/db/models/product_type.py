@@ -1,5 +1,5 @@
-from sqlalchemy.orm import Mapped, mapped_column
 import sqlalchemy as sa
+from sqlalchemy.orm import Mapped, mapped_column
 
 from receptor.db.models.base import Base
 

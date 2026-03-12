@@ -2,7 +2,7 @@ from receptor.core.domain.user_providers import UserProvider
 from receptor.core.domain.user_roles import UserRole
 from receptor.core.errors import EntityNotFoundError
 from receptor.db.models.user.user import User
-from receptor.services.user_service import UserService
+from receptor.services.user.user_service import UserService
 
 
 def build_telegram_display_name(

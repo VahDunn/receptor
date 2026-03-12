@@ -1,8 +1,13 @@
 from abc import ABC, abstractmethod
+from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Any, Mapping, Optional
+from typing import Any
 
-from receptor.core.domain.account_payment.payments import PaymentStatus, WebhookEventType, CurrencyCode
+from receptor.core.domain.account_payment.payments import (
+    CurrencyCode,
+    PaymentStatus,
+    WebhookEventType,
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -16,15 +21,15 @@ class CreatePaymentRequest:
     amount: PaymentAmount
     description: str
     idempotency_key: str
-    return_url: Optional[str] = None
-    metadata: Optional[dict[str, Any]] = None
+    return_url: str | None = None
+    metadata: dict[str, Any] | None = None
 
 
 @dataclass(frozen=True, slots=True)
 class PaymentResponse:
     provider_payment_id: str
     status: PaymentStatus
-    confirmation_url: Optional[str] = None
+    confirmation_url: str | None = None
 
 
 @dataclass(frozen=True, slots=True)

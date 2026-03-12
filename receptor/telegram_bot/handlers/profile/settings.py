@@ -8,7 +8,7 @@ from receptor.core.domain.regions import Region
 from receptor.core.errors import ValidationError
 from receptor.db.models.user.user import User
 from receptor.schemas.user_settings import UserSettingsPatchSchema
-from receptor.services.user_service import UserService
+from receptor.services.user.user_service import UserService
 from receptor.telegram_bot.keyboards.profile import (
     notifications_keyboard,
     profile_keyboard,

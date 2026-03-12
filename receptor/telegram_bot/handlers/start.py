@@ -3,7 +3,7 @@ from aiogram.filters import Command
 from aiogram.types import Message
 
 from receptor.db.models.user.user import User
-from receptor.services.user_service import UserService
+from receptor.services.user.user_service import UserService
 from receptor.telegram_bot.keyboards.main import main_keyboard
 from receptor.telegram_bot.user_resolver import create_telegram_user
 

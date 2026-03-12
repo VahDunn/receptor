@@ -1,14 +1,16 @@
-from typing import Sequence, TYPE_CHECKING
+from collections.abc import Sequence
+from typing import TYPE_CHECKING
 
 from receptor.core.domain.marketplaces import Marketplace
 from receptor.db.models import Product
 from receptor.external_services.ai.prompts.products_prompt import build_products_prompt
 from receptor.external_services.ai.response_schemas.ai_products_schema import (
-    ProductsAiResponseSchema,
     ProductItemSchema,
+    ProductsAiResponseSchema,
 )
 from receptor.repositories.product_repo import ProductRepository
 from receptor.services.ai_service import AIService
+from receptor.services.dto.menu.product import ProductFilterDTO
 
 if TYPE_CHECKING:
     from receptor.external_services.ai.parsers.default_parser import DefaultJsonAiParser
@@ -65,7 +67,7 @@ class ProductsService:
 
     async def get(
         self,
-        marketplace: Marketplace,
-        exclude_ids: Sequence[int] | None = None,
-    ) -> Sequence[Product]:
-        return await self._repo.get(marketplace=marketplace.value, exclude_ids=exclude_ids)
+        *,
+        filters: ProductFilterDTO,
+    ) -> list[Product]:
+        return await self._repo.get(filters=filters)

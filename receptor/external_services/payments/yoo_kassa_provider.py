@@ -1,6 +1,6 @@
 import base64
 import json
-from typing import Mapping
+from collections.abc import Mapping
 
 import httpx
 
@@ -11,9 +11,9 @@ from receptor.core.domain.account_payment.payments import (
 from receptor.external_services.payments.abstract_payment_provider import (
     AbstractPaymentProvider,
     CreatePaymentRequest,
+    PaymentAmount,
     PaymentResponse,
     WebhookEvent,
-    PaymentAmount,
 )
 
 

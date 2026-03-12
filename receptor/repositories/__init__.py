@@ -1,4 +1,4 @@
 from receptor.repositories.menu_repo import MenuRepository as MenuRepository
 from receptor.repositories.payment_repo import PaymentRepository as PaymentRepository
-from receptor.repositories.user_repo import UserRepository as UserRepository
 from receptor.repositories.product_repo import ProductRepository as ProductRepository
+from receptor.repositories.user_repo import UserRepository as UserRepository

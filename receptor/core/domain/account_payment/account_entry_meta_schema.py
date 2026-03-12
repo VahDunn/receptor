@@ -1,6 +1,11 @@
-from typing import Literal, Annotated, Union
+from typing import Annotated, Literal
+
 from pydantic import BaseModel, ConfigDict, Field
-from receptor.core.domain.account_payment.account_entry_meta_kind import AccountEntryMetaKind
+
+from receptor.core.domain.account_payment.account_entry_meta_kind import (
+    AccountEntryMetaKind,
+)
+
 
 class MetaBase(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -22,10 +27,6 @@ class RefundMeta(MetaBase):
     original_operation_key: str | None = None
 
 AccountEntryMeta = Annotated[
-    Union[
-        TopupMeta,
-        ChargeMenuGenerationMeta,
-        RefundMeta
-    ],
+    TopupMeta | ChargeMenuGenerationMeta | RefundMeta,
     Field(discriminator="kind"),
 ]

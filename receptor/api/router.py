@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 
 from receptor.api.deps.ai import get_ai_client
-from receptor.api.v1.products import router as products_router
 from receptor.api.v1.menus import router as menus_router
+from receptor.api.v1.products import router as products_router
 
 depends_ai = Depends(get_ai_client)
 
