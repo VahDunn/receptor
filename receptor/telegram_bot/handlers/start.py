@@ -33,6 +33,12 @@ async def start_handler(
     await message.answer(
         f"Здравствуйте, {user.name}!\n"
         f"Вы зарегистрированы в системе.\n"
-        f"Ваш internal user_id: {user.id}",
+        f"Ваш internal user_id: {user.id}"
+        f"Калораж, исключенные продукты"
+        f"и другие параметры можно настроить"
+        f"в профиле. Посмотреть свои меню"
+        f" и создать новое можно в разделе"
+        f"'Меню' :) \n Стоимость создания 1 меню -"
+        f"100 рублей.",
         reply_markup=main_keyboard,
     )
