@@ -22,6 +22,8 @@ class ServicesMiddleware(BaseMiddleware):
             menu_service,
             payment_service,
             menu_pdf_service,
+            products_service,
+            excluded_products_service,
         ) = await build_services(
             ai_client=self._ai_client,
             payments_http_client=self._payments_http_client,
@@ -32,6 +34,8 @@ class ServicesMiddleware(BaseMiddleware):
             data["menu_service"] = menu_service
             data["payment_service"] = payment_service
             data["menu_pdf_service"] = menu_pdf_service
+            data["product_service"] = products_service
+            data["excluded_products_service"] = excluded_products_service
             return await handler(event, data)
         finally:
             await session.close()

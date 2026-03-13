@@ -4,6 +4,9 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
 from receptor.telegram_bot.handlers.profile.balance import router as balance_router
+from receptor.telegram_bot.handlers.profile.excluded_products import (
+    router as excluded_products_router,
+)
 from receptor.telegram_bot.handlers.profile.settings import router as settings_router
 from receptor.telegram_bot.keyboards.main import main_keyboard
 from receptor.telegram_bot.keyboards.profile import profile_keyboard
@@ -12,6 +15,7 @@ router = Router()
 
 router.include_router(balance_router)
 router.include_router(settings_router)
+router.include_router(excluded_products_router)
 
 
 @router.message(Command("profile"))

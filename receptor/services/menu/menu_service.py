@@ -23,6 +23,7 @@ from receptor.repositories.menu_repo import MenuRepository
 from receptor.schemas.menu import MenuCreateParams, MenuOut
 from receptor.services.accounting_service import AccountingService
 from receptor.services.ai_service import AIService
+from receptor.services.dto.product import ProductFilterDTO
 from receptor.services.menu.product_service import ProductsService
 
 if TYPE_CHECKING:
@@ -53,8 +54,11 @@ class MenuService:
                 f"Not enough funds available for user with ID {payload.user_id}"
             )
         products: Sequence[Product] = await self._products_service.get(
-            marketplace=payload.marketplace,
-            exclude_ids=payload.excluded_products_ids,
+            filters=ProductFilterDTO(
+                marketplace=payload.marketplace,
+                excluded_by_user_id=payload.user_id,
+                limit=10000,
+            )
         )
         allowed_ids = tuple(p.id for p in products)
         unit_by_id = {p.id: Unit(p.unit) for p in products}

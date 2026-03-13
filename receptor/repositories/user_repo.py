@@ -28,6 +28,7 @@ class UserRepository:
             .where(User.id == user_id)
             .options(
                 selectinload(User.identities),
+                selectinload(User.settings),
                 selectinload(User.excluded_products),
                 selectinload(User.menus),
             )
@@ -50,6 +51,7 @@ class UserRepository:
             )
             .options(
                 selectinload(User.identities),
+                selectinload(User.settings),
                 selectinload(User.excluded_products),
                 selectinload(User.menus),
             )

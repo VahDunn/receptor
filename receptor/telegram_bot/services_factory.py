@@ -17,6 +17,9 @@ from receptor.repositories import (
     ProductRepository,
     UserRepository,
 )
+from receptor.repositories.user_excluded_product_repo import (
+    UserExcludedProductsRepository,
+)
 from receptor.repositories.user_settings_repo import UserSettingsRepository
 from receptor.services import (
     AccountingService,
@@ -26,6 +29,9 @@ from receptor.services import (
     UserService,
 )
 from receptor.services.menu.menu_pdf_service import MenuPdfService
+from receptor.services.user.user_excluded_products_service import (
+    UserExcludedProductsService,
+)
 from receptor.services.user.user_settings_service import UserSettingsService
 
 session_factory = async_sessionmaker(
@@ -44,6 +50,8 @@ async def build_services(
     MenuService,
     AccountingService,
     MenuPdfService,
+    ProductsService,
+    UserExcludedProductsService,
 ]:
     session: AsyncSession = session_factory()
 
@@ -52,6 +60,7 @@ async def build_services(
     product_repo = ProductRepository(session)
     menu_repo = MenuRepository(session)
     payment_repo = PaymentRepository(session)
+    excluded_products_repo = UserExcludedProductsRepository(session)
 
     payment_provider = YooKassaProvider(
         shop_id=settings.yookassa_shop_id,
@@ -69,11 +78,13 @@ async def build_services(
     )
 
     ai_service = AIService(ai_client)
+
     user_settings_service = UserSettingsService(user_settings_repo)
     user_service = UserService(
         user_repo,
         user_settings_service,
     )
+
     payment_service = AccountingService(
         provider=payment_provider,
         repo=payment_repo,
@@ -84,6 +95,13 @@ async def build_services(
         ai_service,
         parser=product_parser,
     )
+
+    excluded_products_service = UserExcludedProductsService(
+        repo=excluded_products_repo,
+        user_repo=user_repo,
+        product_repo=product_repo,
+    )
+
     menu_service = MenuService(
         products_service=products_service,
         ai_service=ai_service,
@@ -91,6 +109,15 @@ async def build_services(
         repo=menu_repo,
         payment_service=payment_service,
     )
+
     menu_pdf_service = MenuPdfService()
 
-    return session, user_service, menu_service, payment_service, menu_pdf_service
+    return (
+        session,
+        user_service,
+        menu_service,
+        payment_service,
+        menu_pdf_service,
+        products_service,
+        excluded_products_service,
+    )

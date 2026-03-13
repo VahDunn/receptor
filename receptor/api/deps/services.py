@@ -47,6 +47,7 @@ def get_products_service(
 ) -> ProductsService:
     return ProductsService(repo=repo, ai_service=ai_service, parser=parser)
 
+
 def get_payment_service(
     repo: "PaymentRepository" = Depends(get_payment_repo),
     provider: "AbstractPaymentProvider" = Depends(get_yookassa_provider),

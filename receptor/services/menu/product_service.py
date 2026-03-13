@@ -10,7 +10,7 @@ from receptor.external_services.ai.response_schemas.ai_products_schema import (
 )
 from receptor.repositories.product_repo import ProductRepository
 from receptor.services.ai_service import AIService
-from receptor.services.dto.menu.product import ProductFilterDTO
+from receptor.services.dto.product import ProductFilterDTO
 
 if TYPE_CHECKING:
     from receptor.external_services.ai.parsers.default_parser import DefaultJsonAiParser

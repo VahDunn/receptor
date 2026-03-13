@@ -8,7 +8,7 @@ from receptor.db.models import Product
 from receptor.db.models.user.user import user_excluded_product
 
 if TYPE_CHECKING:
-    from receptor.services.dto.menu.product import ProductFilterDTO
+    from receptor.services.dto.product import ProductFilterDTO
 
 
 class ProductRepository:

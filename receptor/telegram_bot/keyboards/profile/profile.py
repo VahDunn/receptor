@@ -4,6 +4,7 @@ profile_keyboard = ReplyKeyboardMarkup(
     keyboard=[
         [KeyboardButton(text="💰 Баланс")],
         [KeyboardButton(text="⚙️ Настройки")],
+        [KeyboardButton(text="🚫 Исключённые продукты")],
         [KeyboardButton(text="⬅️ На главную")],
     ],
     resize_keyboard=True,
